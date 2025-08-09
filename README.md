@@ -1,3 +1,4 @@
+
 # 🎩✨ **MatheMagician — AI-Powered Math Learning Platform**
 > Where **Math Meets Magic** with AI tutoring, smart study tools, and a touch of brilliance.
 
