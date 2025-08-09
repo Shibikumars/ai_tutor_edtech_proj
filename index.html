@@ -1,0 +1,3731 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MatheMagician - Enhanced Learning Platform</title>
+    <script src="https://cdn.tailwindcss.com">
+// Enable global file content access
+window.uploadedFileContent = null;
+
+document.getElementById("aiFileUpload").addEventListener("change", function (e) {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+
+    reader.onload = function (event) {
+        const content = event.target.result;
+        window.uploadedFileContent = content;
+
+        if (file.type.startsWith("image/")) {
+            addChatMessage(`🖼️ Image "${file.name}" uploaded. I will use OCR to answer related questions.`, 'ai');
+            // Optional: Here you would normally invoke OCR (e.g., Tesseract.js)
+        } else {
+            addChatMessage(`📄 File "${file.name}" uploaded. You can now ask questions based on this file.`, 'ai');
+        }
+    };
+
+    if (file.type.startsWith("text") || file.name.endsWith(".txt")) {
+        reader.readAsText(file);
+    } else if (file.type.startsWith("image/")) {
+        reader.readAsDataURL(file); // for OCR base64
+    } else {
+        alert("Unsupported file type. Please upload a text or image file.");
+    }
+});
+
+// Inject uploaded file content into AI's context
+function generateAIResponse(question) {
+    const context = window.uploadedFileContent ? `\n\nContext from uploaded file:\n${window.uploadedFileContent.substring(0, 1000)}\n\n` : '';
+    const lowerQuestion = question.toLowerCase();
+
+    if (context && lowerQuestion.includes("explain") || lowerQuestion.includes("what is in the image")) {
+        return "📘 Based on your uploaded file or image, here's what I found: " + context.slice(0, 300) + "...";
+    }
+
+    return "✨ I’ve received your question" + (context ? " based on your uploaded file/image." : "") + " Let me help!";
+}
+
+</script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+        
+        * {
+            font-family: 'Inter', sans-serif;
+        }
+
+        /* Version 4 Magical Animations - Preserved */
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-20px) rotate(5deg); }
+        }
+
+        @keyframes magicalFloat {
+            0%, 100% { transform: translateY(0px) rotate(0deg) scale(1); }
+            33% { transform: translateY(-15px) rotate(3deg) scale(1.05); }
+            66% { transform: translateY(-25px) rotate(-3deg) scale(0.95); }
+        }
+
+        @keyframes pulse-glow {
+            0%, 100% { box-shadow: 0 0 20px rgba(147, 51, 234, 0.3); }
+            50% { box-shadow: 0 0 40px rgba(147, 51, 234, 0.6); }
+        }
+
+        @keyframes sparkle {
+            0%, 100% { opacity: 0; transform: scale(0) rotate(0deg); }
+            50% { opacity: 1; transform: scale(1) rotate(180deg); }
+        }
+
+        @keyframes magicalSparkle {
+            0%, 100% { opacity: 0; transform: scale(0) rotate(0deg); }
+            25% { opacity: 0.7; transform: scale(0.5) rotate(90deg); }
+            50% { opacity: 1; transform: scale(1) rotate(180deg); }
+            75% { opacity: 0.7; transform: scale(0.8) rotate(270deg); }
+        }
+
+        @keyframes badge-glow {
+            0%, 100% { box-shadow: 0 0 10px rgba(255, 215, 0, 0.5); }
+            50% { box-shadow: 0 0 20px rgba(255, 215, 0, 0.8); }
+        }
+
+        @keyframes logoSpin {
+            0% { transform: rotate(0deg) scale(1); }
+            25% { transform: rotate(90deg) scale(1.1); }
+            50% { transform: rotate(180deg) scale(1); }
+            75% { transform: rotate(270deg) scale(1.1); }
+            100% { transform: rotate(360deg) scale(1); }
+        }
+
+        @keyframes logoMagic {
+            0% { 
+                transform: scale(1) rotate(0deg);
+                filter: hue-rotate(0deg) brightness(1);
+                text-shadow: 0 0 10px rgba(124, 58, 237, 0.5);
+            }
+            25% { 
+                transform: scale(1.2) rotate(90deg);
+                filter: hue-rotate(90deg) brightness(1.2);
+                text-shadow: 0 0 20px rgba(59, 130, 246, 0.8);
+            }
+            50% { 
+                transform: scale(0.9) rotate(180deg);
+                filter: hue-rotate(180deg) brightness(1.1);
+                text-shadow: 0 0 15px rgba(16, 185, 129, 0.7);
+            }
+            75% { 
+                transform: scale(1.1) rotate(270deg);
+                filter: hue-rotate(270deg) brightness(1.3);
+                text-shadow: 0 0 25px rgba(245, 158, 11, 0.9);
+            }
+            100% { 
+                transform: scale(1) rotate(360deg);
+                filter: hue-rotate(360deg) brightness(1);
+                text-shadow: 0 0 10px rgba(124, 58, 237, 0.5);
+            }
+        }
+
+        .logo-magic {
+            animation: logoMagic 3s ease-in-out infinite;
+            display: inline-block;
+        }
+
+        @keyframes magicalGradient {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        @keyframes slideInMagical {
+            0% { opacity: 0; transform: translateY(30px) scale(0.8); }
+            50% { opacity: 0.7; transform: translateY(-5px) scale(1.05); }
+            100% { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        @keyframes popupMagical {
+            0% { opacity: 0; transform: scale(0.3) rotate(-10deg); }
+            50% { opacity: 0.8; transform: scale(1.1) rotate(5deg); }
+            100% { opacity: 1; transform: scale(1) rotate(0deg); }
+        }
+
+        .floating-shape {
+            animation: magicalFloat 6s ease-in-out infinite;
+        }
+
+        .floating-shape:nth-child(2) { animation-delay: -2s; }
+        .floating-shape:nth-child(3) { animation-delay: -4s; }
+        .floating-shape:nth-child(4) { animation-delay: -1s; }
+        .floating-shape:nth-child(5) { animation-delay: -3s; }
+
+        .pulse-glow {
+            animation: pulse-glow 2s ease-in-out infinite;
+        }
+
+        .sparkle {
+            animation: magicalSparkle 2s ease-in-out infinite;
+        }
+
+        .badge {
+            animation: badge-glow 2s ease-in-out infinite;
+        }
+
+        .avatar-float {
+            animation: float 3s ease-in-out infinite;
+        }
+
+        .chat-bubble {
+            animation: slideInMagical 0.6s ease-out;
+        }
+
+        .logo-spin {
+            animation: logoSpin 4s ease-in-out infinite;
+        }
+
+        .magical-gradient {
+            background: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab, #7c3aed, #f59e0b);
+            background-size: 400% 400%;
+            animation: magicalGradient 8s ease infinite;
+        }
+
+        .interactive-element {
+            transition: all 0.3s ease;
+        }
+
+        .interactive-element:hover {
+            transform: translateY(-5px) scale(1.02);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+        }
+
+        .notification-popup {
+            animation: popupMagical 0.5s ease-out;
+        }
+
+        /* Enhanced Features from Version 5 */
+        .timer-circle {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: conic-gradient(#10b981 0deg, #e5e7eb 0deg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        .timer-inner {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 12px;
+        }
+
+        /* Background Particles */
+        .particle {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: rgba(124, 58, 237, 0.6);
+            border-radius: 50%;
+            animation: particleFloat 8s linear infinite;
+        }
+
+        @keyframes particleFloat {
+            0% { transform: translateY(100vh) rotate(0deg); opacity: 0; }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { transform: translateY(-100px) rotate(360deg); opacity: 0; }
+        }
+
+        .magic-cursor {
+            cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20"><text y="18" font-size="16">🪄</text></svg>'), auto;
+        }
+
+        .mobile-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: white;
+            border-top: 1px solid #e5e7eb;
+            z-index: 50;
+        }
+
+        .mobile-nav-item {
+            flex: 1;
+            padding: 12px 8px;
+            text-align: center;
+            color: #6b7280;
+            transition: all 0.2s;
+        }
+
+        .mobile-nav-item:hover, .mobile-nav-item.active {
+            color: #7c3aed;
+            background-color: #f3f4f6;
+        }
+
+        /* Enhanced Mobile Responsiveness */
+        @media (max-width: 768px) {
+            .text-5xl { font-size: 2.5rem; }
+            .text-4xl { font-size: 2rem; }
+            .text-3xl { font-size: 1.75rem; }
+            .text-2xl { font-size: 1.5rem; }
+            .text-xl { font-size: 1.25rem; }
+            
+            .p-8 { padding: 1rem; }
+            .p-6 { padding: 1rem; }
+            .px-8 { padding-left: 1rem; padding-right: 1rem; }
+            .py-8 { padding-top: 1rem; padding-bottom: 1rem; }
+            
+            .gap-6 { gap: 1rem; }
+            .gap-4 { gap: 0.75rem; }
+            .space-x-4 > * + * { margin-left: 0.75rem; }
+            .space-y-4 > * + * { margin-top: 0.75rem; }
+            
+            .rounded-2xl { border-radius: 1rem; }
+            .rounded-3xl { border-radius: 1.5rem; }
+            
+            .shadow-2xl { box-shadow: 0 10px 25px -3px rgba(0, 0, 0, 0.1); }
+            .shadow-xl { box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); }
+            
+            .mb-8 { margin-bottom: 1.5rem; }
+            .mb-6 { margin-bottom: 1rem; }
+            .mb-4 { margin-bottom: 0.75rem; }
+            
+            .grid-cols-4 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+            .grid-cols-3 { grid-template-columns: repeat(1, minmax(0, 1fr)); }
+            .grid-cols-2 { grid-template-columns: repeat(1, minmax(0, 1fr)); }
+            
+            .max-w-7xl { max-width: 100%; }
+            .max-w-6xl { max-width: 100%; }
+            .max-w-4xl { max-width: 100%; }
+            
+            .hidden.md\\:flex { display: none !important; }
+            .hidden.md\\:block { display: none !important; }
+            
+            .timer-circle {
+                width: 50px;
+                height: 50px;
+            }
+            
+            .timer-inner {
+                width: 40px;
+                height: 40px;
+                font-size: 10px;
+            }
+            
+            .interactive-element:hover {
+                transform: none;
+                box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            }
+        }
+
+        @media (max-width: 640px) {
+            .text-8xl { font-size: 3rem; }
+            .text-6xl { font-size: 2rem; }
+            
+            .px-4 { padding-left: 0.75rem; padding-right: 0.75rem; }
+            .py-4 { padding-top: 0.75rem; padding-bottom: 0.75rem; }
+            
+            .w-full.max-w-md { max-width: 95%; }
+            .w-full.max-w-lg { max-width: 95%; }
+            
+            .space-x-6 > * + * { margin-left: 0.5rem; }
+            .space-x-4 > * + * { margin-left: 0.5rem; }
+            .space-x-3 > * + * { margin-left: 0.5rem; }
+            
+            .flex-col { flex-direction: column; }
+            .items-center { align-items: center; }
+            
+            .text-center { text-align: center; }
+        }
+    </style>
+</head>
+<body class="bg-gray-100 magic-cursor">
+    <!-- Background Particles -->
+    <div id="particles" class="fixed inset-0 pointer-events-none z-0"></div>
+
+    <!-- Notification Container -->
+    <div id="notificationContainer" class="fixed top-4 right-4 z-50 space-y-2"></div>
+
+    <!-- Splash Screen - Version 4 Style Preserved -->
+    <div id="splashScreen" class="fixed inset-0 magical-gradient flex items-center justify-center z-50">
+        <div class="text-center">
+            <div class="relative mb-8">
+                <!-- Floating Shapes -->
+                <div class="floating-shape absolute -top-16 -left-16 w-24 h-24 bg-white bg-opacity-20 rounded-full"></div>
+                <div class="floating-shape absolute -top-8 -right-8 w-16 h-16 bg-yellow-400 bg-opacity-30 rounded-full"></div>
+                <div class="floating-shape absolute -bottom-8 -left-8 w-20 h-20 bg-pink-400 bg-opacity-25 rounded-full"></div>
+                <div class="floating-shape absolute -bottom-12 -right-12 w-12 h-12 bg-blue-400 bg-opacity-35 rounded-full"></div>
+                <div class="floating-shape absolute top-0 right-0 w-8 h-8 bg-green-400 bg-opacity-40 rounded-full"></div>
+                
+                <!-- Animated Logo -->
+                <div class="logo-magic text-8xl font-bold text-white mb-6">🧠⚡</div>
+                <h2 class="text-5xl font-bold text-white mb-2">MatheMagician</h2>
+                <p class="text-white text-xl opacity-90">Where Math Meets Magic</p>
+            </div>
+            
+            <!-- Sparkles -->
+            <div class="flex justify-center space-x-3 mb-6">
+                <div class="sparkle w-4 h-4 bg-white rounded-full"></div>
+                <div class="sparkle w-4 h-4 bg-yellow-400 rounded-full" style="animation-delay: 0.3s;"></div>
+                <div class="sparkle w-4 h-4 bg-pink-400 rounded-full" style="animation-delay: 0.6s;"></div>
+                <div class="sparkle w-4 h-4 bg-blue-400 rounded-full" style="animation-delay: 0.9s;"></div>
+                <div class="sparkle w-4 h-4 bg-green-400 rounded-full" style="animation-delay: 1.2s;"></div>
+            </div>
+            
+            <div class="text-white text-lg opacity-80">Loading magical features...</div>
+            <div class="mt-4 w-64 mx-auto bg-white bg-opacity-20 rounded-full h-2">
+                <div id="loadingBar" class="bg-white h-2 rounded-full transition-all duration-300" style="width: 0%"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Login Page - Enhanced with Validation -->
+    <div id="loginPage" class="hidden fixed inset-0 magical-gradient flex items-center justify-center">
+        <div class="bg-white rounded-3xl shadow-2xl p-10 w-full max-w-md mx-4 relative overflow-hidden">
+            <div class="floating-shape absolute -top-4 -right-4 w-12 h-12 bg-purple-200 rounded-full opacity-50"></div>
+            <div class="floating-shape absolute -bottom-4 -left-4 w-8 h-8 bg-blue-200 rounded-full opacity-50"></div>
+            
+            <div class="text-center mb-8">
+                <div class="logo-magic text-4xl mb-4">🧠⚡</div>
+                <h1 class="text-3xl font-bold text-gray-800 mb-2">MatheMagician</h1>
+                <p class="text-gray-600">Enter the magical world of mathematics</p>
+            </div>
+            
+            <form onsubmit="login(event)" class="space-y-6">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">✨ Username</label>
+                    <input type="text" id="loginUsername" required class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all" placeholder="Enter your magical username">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">🔮 Password</label>
+                    <input type="password" id="loginPassword" required class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all" placeholder="Enter your secret spell">
+                </div>
+                <button type="submit" class="w-full bg-gradient-to-r from-purple-600 to-blue-600 text-white py-3 rounded-xl hover:from-purple-700 hover:to-blue-700 font-medium pulse-glow transition-all">
+                    ✨ Cast Login Spell ✨
+                </button>
+            </form>
+            
+            <div class="mt-6 text-center">
+                <button onclick="showRegister()" class="text-purple-600 hover:text-purple-800 font-medium">
+                    🪄 Create New Magical Account
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Register Page - Enhanced with Required Fields -->
+    <div id="registerPage" class="hidden fixed inset-0 magical-gradient flex items-center justify-center overflow-y-auto">
+        <div class="bg-white rounded-3xl shadow-2xl p-8 w-full max-w-lg mx-4 my-8 relative overflow-hidden">
+            <div class="floating-shape absolute -top-4 -right-4 w-12 h-12 bg-green-200 rounded-full opacity-50"></div>
+            <div class="floating-shape absolute -bottom-4 -left-4 w-8 h-8 bg-yellow-200 rounded-full opacity-50"></div>
+            
+            <div class="text-center mb-6">
+                <div class="logo-magic text-4xl mb-4">🧠⚡</div>
+                <h1 class="text-3xl font-bold text-gray-800 mb-2">Join the Magic</h1>
+                <p class="text-gray-600">Create your personalized learning journey</p>
+            </div>
+            
+            <form onsubmit="register(event)" class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">🧙‍♂️ Full Name *</label>
+                    <input type="text" id="regName" required class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all" placeholder="Your magical name">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">✨ Username *</label>
+                    <input type="text" id="regUsername" required class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all" placeholder="Choose a unique username">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">📧 Email *</label>
+                    <input type="email" id="regEmail" required class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all" placeholder="your.email@magic.com">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">📱 Contact Number *</label>
+                    <input type="tel" id="regContact" required class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all" placeholder="+1 234 567 8900">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">🎓 Grade/Class *</label>
+                    <select id="regGrade" required class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all">
+                        <option value="">Select your grade</option>
+                        <option value="6">Grade 6</option>
+                        <option value="7">Grade 7</option>
+                        <option value="8">Grade 8</option>
+                        <option value="9">Grade 9</option>
+                        <option value="10">Grade 10</option>
+                        <option value="11">Grade 11</option>
+                        <option value="12">Grade 12</option>
+                        <option value="college">College/University</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">📚 Syllabus/Board *</label>
+                    <select id="regSyllabus" required class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all">
+                        <option value="">Select your syllabus</option>
+                        <option value="cbse">CBSE</option>
+                        <option value="icse">ICSE</option>
+                        <option value="state">State Board</option>
+                        <option value="ib">IB (International Baccalaureate)</option>
+                        <option value="cambridge">Cambridge</option>
+                        <option value="ap">AP (Advanced Placement)</option>
+                        <option value="sat">SAT Prep</option>
+                        <option value="jee">JEE Preparation</option>
+                        <option value="neet">NEET Preparation</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">🔮 Password *</label>
+                    <input type="password" id="regPassword" required class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all" placeholder="Create a strong spell">
+                </div>
+                <button type="submit" class="w-full bg-gradient-to-r from-green-600 to-blue-600 text-white py-3 rounded-xl hover:from-green-700 hover:to-blue-700 font-medium pulse-glow transition-all">
+                    🌟 Begin Magical Journey 🌟
+                </button>
+            </form>
+            
+            <div class="mt-4 text-center">
+                <button onclick="showLogin()" class="text-purple-600 hover:text-purple-800 font-medium">
+                    🔙 Back to Login Portal
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main App -->
+    <div id="mainApp" class="hidden">
+        <!-- Header - Version 4 Style with Version 5 Features -->
+        <header class="bg-white shadow-lg border-b border-gray-200 relative overflow-hidden">
+            <div class="absolute inset-0 bg-gradient-to-r from-purple-50 to-blue-50 opacity-50"></div>
+            <div class="relative max-w-7xl mx-auto px-4 py-4">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center space-x-4">
+                        <div class="flex items-center space-x-2">
+                            <div class="logo-magic text-2xl">🧠⚡</div>
+                            <h1 class="text-2xl font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">MatheMagician</h1>
+                        </div>
+                        <div class="hidden md:flex items-center space-x-6">
+                            <button onclick="showSection('dashboard')" class="nav-link text-gray-600 hover:text-purple-600 font-medium transition-all">Dashboard</button>
+                            <button onclick="showSection('aiChat')" class="nav-link text-gray-600 hover:text-purple-600 font-medium transition-all">AI Tutor</button>
+                            <button onclick="showSection('mockTests')" class="nav-link text-gray-600 hover:text-purple-600 font-medium transition-all">Tests</button>
+                            <button onclick="showSection('scheduler')" class="nav-link text-gray-600 hover:text-purple-600 font-medium transition-all">Schedule</button>
+                            <button onclick="showSection('studyGroups')" class="nav-link text-gray-600 hover:text-purple-600 font-medium transition-all">Groups</button>
+                            <button onclick="showSection('notes')" class="nav-link text-gray-600 hover:text-purple-600 font-medium transition-all">Notes</button>
+                            <button onclick="showSection('resources')" class="nav-link text-gray-600 hover:text-purple-600 font-medium transition-all">Resources</button>
+                        </div>
+                    </div>
+                    
+                    <div class="flex items-center space-x-4">
+                        <!-- XP Display -->
+                        <div class="hidden md:flex items-center bg-gradient-to-r from-yellow-400 to-orange-500 text-white px-4 py-2 rounded-full shadow-lg">
+                            <span class="text-sm font-bold mr-2">Level <span id="userLevel">3</span></span>
+                            <span class="text-sm" id="userXP">2,450 XP</span>
+                        </div>
+                        
+                        <!-- User Profile -->
+                        <div class="flex items-center space-x-3">
+                            <div class="avatar-container">
+                                <div class="w-10 h-10 rounded-full bg-gradient-to-r from-purple-500 to-blue-500 flex items-center justify-center text-white font-bold avatar-float shadow-lg">
+                                    A
+                                </div>
+                            </div>
+                            <div class="hidden md:block">
+                                <p class="text-sm font-medium text-gray-800" id="headerUserName">Alex Johnson</p>
+                                <p class="text-xs text-purple-600">Math Wizard ✨</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Dashboard Section -->
+        <div id="dashboard" class="min-h-screen bg-gradient-to-br from-purple-50 via-blue-50 to-indigo-50">
+            <div class="max-w-7xl mx-auto px-4 py-8 pb-20 md:pb-8">
+                <!-- Welcome Section -->
+                <div class="mb-8 text-center">
+                    <h1 class="text-5xl font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent mb-4">
+                        Welcome back, <span id="dashboardUserName">Alex</span>! 🎉✨
+                    </h1>
+                    <p class="text-gray-600 text-lg">Ready to continue your <span id="dashboardGrade">Grade 10</span> <span id="dashboardSyllabus">CBSE</span> journey?</p>
+                    <div class="flex justify-center items-center space-x-4 mt-4">
+                        <div class="flex space-x-2">
+                            <div class="sparkle w-2 h-2 bg-purple-400 rounded-full"></div>
+                            <div class="sparkle w-2 h-2 bg-blue-400 rounded-full" style="animation-delay: 0.3s;"></div>
+                            <div class="sparkle w-2 h-2 bg-green-400 rounded-full" style="animation-delay: 0.6s;"></div>
+                        </div>
+                        <!-- Streak Counter -->
+                        <div class="bg-gradient-to-r from-orange-400 to-red-500 text-white px-4 py-2 rounded-full shadow-lg flex items-center space-x-2">
+                            <span class="text-lg">🔥</span>
+                            <span class="font-bold" id="streakCount">12</span>
+                            <span class="text-sm">day streak</span>
+                        </div>
+                        <!-- Dark Mode Toggle -->
+                        <button onclick="toggleDarkMode()" class="bg-gray-200 dark:bg-gray-700 p-2 rounded-full hover:bg-gray-300 dark:hover:bg-gray-600 transition-all">
+                            <span id="themeIcon">🌙</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Stats Grid -->
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                    <div class="bg-white rounded-2xl shadow-xl p-6 interactive-element border border-blue-100">
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="bg-gradient-to-r from-blue-400 to-blue-600 p-3 rounded-full shadow-lg">
+                                <span class="text-2xl">📚</span>
+                            </div>
+                            <div class="text-right">
+                                <p class="text-3xl font-bold text-blue-600" id="lessonsCompletedDisplay">0</p>
+                                <p class="text-sm text-gray-600">Lessons Completed</p>
+                            </div>
+                        </div>
+                        <div class="w-full bg-gray-200 rounded-full h-3">
+                            <div id="lessonsProgressBar" class="bg-gradient-to-r from-blue-400 to-blue-600 h-3 rounded-full w-0"></div>
+                        </div>
+                    </div>
+
+                    <div class="bg-white rounded-2xl shadow-xl p-6 interactive-element border border-green-100">
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="bg-gradient-to-r from-green-400 to-green-600 p-3 rounded-full shadow-lg">
+                                <span class="text-2xl">🏆</span>
+                            </div>
+                            <div class="text-right">
+                                <p class="text-3xl font-bold text-green-600" id="userXPDisplay">2,450</p>
+                                <p class="text-sm text-gray-600">Total XP</p>
+                            </div>
+                        </div>
+                        <div class="w-full bg-gray-200 rounded-full h-3">
+                            <div id="xpBar" class="bg-gradient-to-r from-green-400 to-green-600 h-3 rounded-full w-1/2"></div>
+                        </div>
+                    </div>
+
+                    <div class="bg-white rounded-2xl shadow-xl p-6 interactive-element border border-purple-100">
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="bg-gradient-to-r from-purple-400 to-purple-600 p-3 rounded-full shadow-lg">
+                                <span class="text-2xl">⚡</span>
+                            </div>
+                            <div class="text-right">
+                                <p class="text-3xl font-bold text-purple-600">12</p>
+                                <p class="text-sm text-gray-600">Day Streak</p>
+                            </div>
+                        </div>
+                        <div class="w-full bg-gray-200 rounded-full h-3">
+                            <div class="bg-gradient-to-r from-purple-400 to-purple-600 h-3 rounded-full w-4/5"></div>
+                        </div>
+                    </div>
+
+                    <div class="bg-white rounded-2xl shadow-xl p-6 interactive-element border border-yellow-100">
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="bg-gradient-to-r from-yellow-400 to-yellow-600 p-3 rounded-full shadow-lg">
+                                <span class="text-2xl">🎯</span>
+                            </div>
+                            <div class="text-right">
+                                <p class="text-3xl font-bold text-yellow-600" id="accuracyRateDisplay">0%</p>
+                                <p class="text-sm text-gray-600">Accuracy Rate</p>
+                            </div>
+                        </div>
+                        <div class="w-full bg-gray-200 rounded-full h-3">
+                            <div id="accuracyProgressBar" class="bg-gradient-to-r from-yellow-400 to-yellow-600 h-3 rounded-full w-0"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quick Actions -->
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                    <button onclick="showSection('aiChat')" class="interactive-element bg-gradient-to-br from-purple-500 to-blue-600 text-white p-8 rounded-2xl shadow-xl hover:shadow-2xl">
+                        <div class="text-center">
+                            <span class="text-4xl mb-4 block">🤖</span>
+                            <h3 class="font-semibold mb-2 text-lg">AI Tutor</h3>
+                            <p class="text-sm opacity-90">Get instant magical help</p>
+                        </div>
+                    </button>
+                    <button onclick="showSection('mockTests')" class="interactive-element bg-gradient-to-br from-green-500 to-teal-600 text-white p-8 rounded-2xl shadow-xl hover:shadow-2xl">
+                        <div class="text-center">
+                            <span class="text-4xl mb-4 block">📝</span>
+                            <h3 class="font-semibold mb-2 text-lg">Practice Tests</h3>
+                            <p class="text-sm opacity-90">Test your magical skills</p>
+                        </div>
+                    </button>
+                    <button onclick="showSection('scheduler')" class="interactive-element bg-gradient-to-br from-yellow-500 to-orange-600 text-white p-8 rounded-2xl shadow-xl hover:shadow-2xl">
+                        <div class="text-center">
+                            <span class="text-4xl mb-4 block">📅</span>
+                            <h3 class="font-semibold mb-2 text-lg">Study Schedule</h3>
+                            <p class="text-sm opacity-90">Plan your magical time</p>
+                        </div>
+                    </button>
+                    <button onclick="showSection('studyGroups')" class="interactive-element bg-gradient-to-br from-pink-500 to-red-600 text-white p-8 rounded-2xl shadow-xl hover:shadow-2xl">
+                        <div class="text-center">
+                            <span class="text-4xl mb-4 block">👥</span>
+                            <h3 class="font-semibold mb-2 text-lg">Study Groups</h3>
+                            <p class="text-sm opacity-90">Learn together magically</p>
+                        </div>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- AI Tutor Section - Enhanced with Problem Solving -->
+        <div id="aiChat" class="hidden min-h-screen bg-gradient-to-br from-purple-50 via-blue-50 to-indigo-50">
+            <div class="max-w-4xl mx-auto px-4 py-8 pb-20 md:pb-8">
+                <!-- Chat Interface -->
+                <div class="bg-white rounded-2xl shadow-2xl h-96 mb-6 flex flex-col border border-purple-100">
+                    <div class="bg-gradient-to-r from-purple-600 to-blue-600 text-white p-6 rounded-t-2xl relative overflow-hidden">
+                        <div class="floating-shape absolute -top-2 -right-2 w-8 h-8 bg-white bg-opacity-20 rounded-full"></div>
+                        <div class="floating-shape absolute -bottom-2 -left-2 w-6 h-6 bg-white bg-opacity-20 rounded-full"></div>
+                        
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center">
+                                <div class="avatar-container mr-4">
+                                    <div class="w-12 h-12 rounded-full bg-white bg-opacity-20 flex items-center justify-center avatar-float shadow-lg">
+                                        <span class="text-2xl">🦙</span>
+                                    </div>
+                                </div>
+                                <div>
+                                    <h2 class="text-2xl font-bold">LLAMA AI Tutor ✨</h2>
+                                    <p class="text-sm opacity-90">Your magical math assistant</p>
+                                </div>
+                            </div>
+                            <button onclick="clearChat()" class="bg-white bg-opacity-20 p-2 rounded-full hover:bg-opacity-30 transition-all">
+                                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div id="chatMessages" class="flex-1 p-6 overflow-y-auto space-y-4 bg-gradient-to-b from-purple-50 to-blue-50">
+                        <div class="flex items-start space-x-3">
+                            <div class="w-10 h-10 rounded-full bg-gradient-to-r from-purple-500 to-blue-500 flex items-center justify-center text-white text-sm font-bold shadow-lg">🦙</div>
+                            <div class="chat-bubble bg-white p-4 rounded-xl shadow-lg border border-purple-100">
+                                <p class="text-gray-800">Hello! I'm your enhanced AI math tutor with magical problem-solving powers! 🎩✨ I can solve equations, explain concepts, and provide step-by-step solutions. Ask me any math question!</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="p-6 border-t border-purple-100 bg-gradient-to-r from-purple-50 to-blue-50">
+                        
+<!-- File Upload for AI Tutor -->
+<div class="mb-4 p-6 border-t border-purple-100 bg-gradient-to-r from-purple-50 to-blue-50">
+    <label class="block text-sm font-medium text-gray-700 mb-1">📁 Upload a file or image for the AI Tutor:</label>
+    <input type="file" id="aiFileUpload" accept=".pdf,.doc,.docx,.txt,.png,.jpg,.jpeg"
+           class="w-full px-4 py-2 border border-purple-200 rounded-xl bg-white shadow-sm">
+</div>
+
+<form onsubmit="sendMessage(event)" class="flex space-x-3">
+                            <input type="text" id="messageInput" placeholder="Ask me any math question... (e.g., solve x^2 + 5x + 6 = 0)" class="flex-1 px-4 py-3 border border-purple-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent bg-white shadow-lg">
+                            <button type="submit" class="bg-gradient-to-r from-purple-600 to-blue-600 text-white px-6 py-3 rounded-xl hover:from-purple-700 hover:to-blue-700 font-medium shadow-lg transition-all">
+                                ✨ Send
+                            </button>
+                        </form>
+                    </div>
+                </div>
+                
+                <!-- AI Personalized Suggestions -->
+                <div class="bg-white rounded-2xl shadow-xl p-6 mb-6 border border-purple-100">
+                    <h3 class="text-xl font-semibold text-gray-800 mb-4 flex items-center">
+                        <span class="mr-2">🤖</span> AI Personalized Suggestions
+                    </h3>
+                    <div id="aiSuggestions" class="bg-gradient-to-r from-purple-50 to-blue-50 p-4 rounded-xl mb-4">
+                        <p class="text-gray-700 text-sm">Based on your test performance, I recommend focusing on these topics...</p>
+                    </div>
+                </div>
+
+                <!-- Quick Help Topics -->
+                <div class="bg-white rounded-2xl shadow-xl p-6 mb-6 border border-blue-100">
+                    <h3 class="text-xl font-semibold text-gray-800 mb-4 flex items-center">
+                        <span class="mr-2">🎯</span> Quick Math Help
+                    </h3>
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+                        <button onclick="askQuickQuestion('Solve x^2 + 5x + 6 = 0')" class="p-4 bg-gradient-to-r from-blue-50 to-blue-100 hover:from-blue-100 hover:to-blue-200 rounded-xl text-sm text-blue-700 font-medium border border-blue-200 transition-all">
+                            Quadratic Equations
+                        </button>
+                        <button onclick="askQuickQuestion('Find the derivative of x^3 + 2x^2 + x + 1')" class="p-4 bg-gradient-to-r from-green-50 to-green-100 hover:from-green-100 hover:to-green-200 rounded-xl text-sm text-green-700 font-medium border border-green-200 transition-all">
+                            Derivatives
+                        </button>
+                        <button onclick="askQuickQuestion('Find the area of a triangle with base 10 and height 8')" class="p-4 bg-gradient-to-r from-purple-50 to-purple-100 hover:from-purple-100 hover:to-purple-200 rounded-xl text-sm text-purple-700 font-medium border border-purple-200 transition-all">
+                            Geometry
+                        </button>
+                        <button onclick="askQuickQuestion('Solve sin(x) = 0.5 for x between 0 and 2π')" class="p-4 bg-gradient-to-r from-yellow-50 to-yellow-100 hover:from-yellow-100 hover:to-yellow-200 rounded-xl text-sm text-yellow-700 font-medium border border-yellow-200 transition-all">
+                            Trigonometry
+                        </button>
+                        <button onclick="askQuickQuestion('Calculate 25% of 80')" class="p-4 bg-gradient-to-r from-red-50 to-red-100 hover:from-red-100 hover:to-red-200 rounded-xl text-sm text-red-700 font-medium border border-red-200 transition-all">
+                            Percentages
+                        </button>
+                        <button onclick="askQuickQuestion('Find the square root of 144')" class="p-4 bg-gradient-to-r from-indigo-50 to-indigo-100 hover:from-indigo-100 hover:to-indigo-200 rounded-xl text-sm text-indigo-700 font-medium border border-indigo-200 transition-all">
+                            Square Roots
+                        </button>
+                        <button onclick="askQuickQuestion('Calculate 2^5')" class="p-4 bg-gradient-to-r from-pink-50 to-pink-100 hover:from-pink-100 hover:to-pink-200 rounded-xl text-sm text-pink-700 font-medium border border-pink-200 transition-all">
+                            Powers
+                        </button>
+                        <button onclick="askQuickQuestion('Find area of rectangle with length 12 and width 8')" class="p-4 bg-gradient-to-r from-teal-50 to-teal-100 hover:from-teal-100 hover:to-teal-200 rounded-xl text-sm text-teal-700 font-medium border border-teal-200 transition-all">
+                            Area Problems
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mock Tests Section - Enhanced with Timers -->
+        <div id="mockTests" class="hidden min-h-screen bg-gradient-to-br from-green-50 via-blue-50 to-purple-50">
+            <div class="max-w-6xl mx-auto px-4 py-8 pb-20 md:pb-8">
+                <div class="mb-8 text-center">
+                    <h1 class="text-5xl font-bold bg-gradient-to-r from-green-600 to-blue-600 bg-clip-text text-transparent mb-4">
+                        📝 Mock Tests ✨
+                    </h1>
+                    <p class="text-gray-600 text-lg">Practice with our comprehensive test series and earn magical XP!</p>
+                </div>
+                
+                <!-- Test Grid -->
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="testGrid">
+                    <!-- Test cards will be populated here -->
+                </div>
+
+                <!-- Test Interface -->
+                <div id="testInterface" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+                    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-4xl mx-4 max-h-screen overflow-y-auto">
+                        <div class="bg-gradient-to-r from-purple-600 to-blue-600 text-white p-6 rounded-t-2xl">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <h2 class="text-2xl font-bold" id="testTitle">Algebra Basics Test</h2>
+                                    <p class="opacity-90" id="testDescription">Test your algebra skills</p>
+                                </div>
+                                <div class="flex items-center space-x-4">
+                                    <div class="timer-circle" id="timerCircle">
+                                        <div class="timer-inner" id="timerDisplay">30:00</div>
+                                    </div>
+                                    <button onclick="closeTest()" class="bg-white bg-opacity-20 p-2 rounded-full hover:bg-opacity-30">
+                                        <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+                                            <path d="M6 18L18 6M6 6l12 12"/>
+                                        </svg>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="p-6">
+                            <div class="mb-6">
+                                <div class="flex items-center justify-between mb-2">
+                                    <span class="text-sm text-gray-600">Progress</span>
+                                    <span class="text-sm text-gray-600" id="questionProgress">1 of 10</span>
+                                </div>
+                                <div class="w-full bg-gray-200 rounded-full h-2">
+                                    <div id="testProgressBar" class="bg-gradient-to-r from-purple-500 to-blue-500 h-2 rounded-full transition-all" style="width: 10%"></div>
+                                </div>
+                            </div>
+                            
+                            <div id="questionContainer">
+                                <!-- Questions will be populated here -->
+                            </div>
+                            
+                            <div class="flex justify-between mt-6">
+                                <button id="prevBtn" onclick="previousQuestion()" class="bg-gray-500 text-white px-6 py-3 rounded-xl hover:bg-gray-600 disabled:opacity-50" disabled>
+                                    ← Previous
+                                </button>
+                                <button id="nextBtn" onclick="nextQuestion()" class="bg-gradient-to-r from-purple-600 to-blue-600 text-white px-6 py-3 rounded-xl hover:from-purple-700 hover:to-blue-700">
+                                    Next →
+                                </button>
+                                <button id="submitBtn" onclick="submitTest()" class="hidden bg-gradient-to-r from-green-600 to-blue-600 text-white px-6 py-3 rounded-xl hover:from-green-700 hover:to-blue-700">
+                                    Submit Test ✨
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Other sections (scheduler, studyGroups, notes, resources) would follow the same pattern -->
+        <!-- Keeping them minimal for space but maintaining the Version 4 styling -->
+        
+        <div id="scheduler" class="hidden min-h-screen bg-gradient-to-br from-yellow-50 via-orange-50 to-red-50">
+            <div class="max-w-7xl mx-auto px-4 py-8 pb-20 md:pb-8">
+                <div class="mb-8 text-center">
+                    <h1 class="text-5xl font-bold bg-gradient-to-r from-yellow-600 to-orange-600 bg-clip-text text-transparent mb-4">
+                        📅 Study Scheduler ✨
+                    </h1>
+                    <p class="text-gray-600 text-lg">Plan your magical study sessions</p>
+                </div>
+                
+                <!-- Add New Schedule -->
+                <div class="bg-white rounded-2xl shadow-xl p-6 mb-8 border border-yellow-100">
+                    <h3 class="text-xl font-semibold text-gray-800 mb-4 flex items-center">
+                        <span class="mr-2">➕</span> Add New Study Session
+                    </h3>
+                    <form onsubmit="addScheduleItem(event)" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                        <input type="text" id="scheduleSubject" placeholder="Subject (e.g., Algebra)" required class="px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-yellow-500">
+                        <input type="date" id="scheduleDate" required class="px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-yellow-500">
+                        <input type="time" id="scheduleTime" required class="px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-yellow-500">
+                        <button type="submit" class="bg-gradient-to-r from-yellow-600 to-orange-600 text-white px-6 py-3 rounded-xl hover:from-yellow-700 hover:to-orange-700 font-medium">
+                            ✨ Schedule
+                        </button>
+                    </form>
+                </div>
+                
+                <!-- Schedule List -->
+                <div class="bg-white rounded-2xl shadow-xl p-6 border border-orange-100">
+                    <h3 class="text-xl font-semibold text-gray-800 mb-6 flex items-center">
+                        <span class="mr-2">📋</span> Your Study Schedule
+                    </h3>
+                    <div id="scheduleList" class="space-y-4">
+                        <!-- Schedule items will be populated here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="studyGroups" class="hidden min-h-screen bg-gradient-to-br from-pink-50 via-purple-50 to-blue-50">
+            <div class="max-w-7xl mx-auto px-4 py-8 pb-20 md:pb-8">
+                <div class="mb-8 text-center">
+                    <h1 class="text-5xl font-bold bg-gradient-to-r from-pink-600 to-purple-600 bg-clip-text text-transparent mb-4">
+                        👥 Study Groups ✨
+                    </h1>
+                    <p class="text-gray-600 text-lg">Collaborate and learn together</p>
+                </div>
+                
+                <!-- Create New Group -->
+                <div class="bg-white rounded-2xl shadow-xl p-6 mb-8 border border-pink-100">
+                    <h3 class="text-xl font-semibold text-gray-800 mb-4 flex items-center">
+                        <span class="mr-2">➕</span> Create New Study Group
+                    </h3>
+                    <form onsubmit="createStudyGroup(event)" class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <input type="text" id="groupName" placeholder="Group Name" required class="px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-pink-500">
+                        <select id="groupSubject" required class="px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-pink-500">
+                            <option value="">Select Subject</option>
+                            <option value="algebra">Algebra</option>
+                            <option value="geometry">Geometry</option>
+                            <option value="calculus">Calculus</option>
+                            <option value="statistics">Statistics</option>
+                            <option value="trigonometry">Trigonometry</option>
+                        </select>
+                        <button type="submit" class="bg-gradient-to-r from-pink-600 to-purple-600 text-white px-6 py-3 rounded-xl hover:from-pink-700 hover:to-purple-700 font-medium">
+                            ✨ Create Group
+                        </button>
+                    </form>
+                </div>
+                
+                <!-- Available Groups -->
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="studyGroupsList">
+                    <!-- Groups will be populated here -->
+                </div>
+            </div>
+        </div>
+
+        <div id="notes" class="hidden min-h-screen bg-gradient-to-br from-green-50 via-blue-50 to-purple-50">
+            <div class="max-w-7xl mx-auto px-4 py-8 pb-20 md:pb-8">
+                <div class="mb-8 text-center">
+                    <h1 class="text-5xl font-bold bg-gradient-to-r from-green-600 to-purple-600 bg-clip-text text-transparent mb-4">
+                        📝 My Magical Notes ✨
+                    </h1>
+                    <p class="text-gray-600 text-lg">Organize your study notes</p>
+                </div>
+                
+                <!-- Add New Note -->
+                <div class="bg-white rounded-2xl shadow-xl p-6 mb-8 border border-green-100">
+                    <h3 class="text-xl font-semibold text-gray-800 mb-4 flex items-center">
+                        <span class="mr-2">➕</span> Create New Note
+                    </h3>
+                    <form onsubmit="addNote(event)" class="space-y-4">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <input type="text" id="noteTitle" placeholder="Note Title" required class="px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500">
+                            <select id="noteSubject" required class="px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500">
+                                <option value="">Select Subject</option>
+                                <option value="algebra">Algebra</option>
+                                <option value="geometry">Geometry</option>
+                                <option value="calculus">Calculus</option>
+                                <option value="statistics">Statistics</option>
+                                <option value="trigonometry">Trigonometry</option>
+                            </select>
+                        </div>
+                        <textarea id="noteContent" placeholder="Write your magical notes here..." rows="6" required class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 resize-none"></textarea>
+                        <button type="submit" class="bg-gradient-to-r from-green-600 to-blue-600 text-white px-6 py-3 rounded-xl hover:from-green-700 hover:to-blue-700 font-medium">
+                            ✨ Save Note
+                        </button>
+                    </form>
+                </div>
+                
+                <!-- Notes List -->
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="notesList">
+                    <!-- Notes will be populated here -->
+                </div>
+            </div>
+        </div>
+
+        <div id="resources" class="hidden min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50">
+            <div class="max-w-7xl mx-auto px-4 py-8 pb-20 md:pb-8">
+                <div class="mb-8 text-center">
+                    <h1 class="text-5xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent mb-4">
+                        📚 Magical Learning Resources ✨
+                    </h1>
+                    <p class="text-gray-600 text-lg">Interactive materials and study resources</p>
+                </div>
+                
+                <!-- Olympiads & Competitions -->
+                <div class="bg-white rounded-2xl shadow-xl p-6 mb-8 border border-blue-100">
+                    <h3 class="text-2xl font-semibold text-gray-800 mb-6 flex items-center">
+                        <span class="mr-2">🏆</span> Olympiads & Competitions
+                    </h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="olympiadsList">
+                        <!-- Olympiads will be populated here -->
+                    </div>
+                </div>
+                
+                <!-- Important Topics -->
+                <div class="bg-white rounded-2xl shadow-xl p-6 mb-8 border border-purple-100">
+                    <h3 class="text-2xl font-semibold text-gray-800 mb-6 flex items-center">
+                        <span class="mr-2">⭐</span> Important Topics
+                    </h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4" id="importantTopicsList">
+                        <!-- Topics will be populated here -->
+                    </div>
+                </div>
+                
+                <!-- Previous Year Papers -->
+                <div class="bg-white rounded-2xl shadow-xl p-6 mb-8 border border-green-100">
+                    <h3 class="text-2xl font-semibold text-gray-800 mb-6 flex items-center">
+                        <span class="mr-2">📄</span> Previous Year Question Papers
+                    </h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="previousPapersList">
+                        <!-- Papers will be populated here -->
+                    </div>
+                </div>
+                
+                <!-- Chapter Resources -->
+                <div class="bg-white rounded-2xl shadow-xl p-6 border border-pink-100">
+                    <h3 class="text-2xl font-semibold text-gray-800 mb-6 flex items-center">
+                        <span class="mr-2">📖</span> Chapter-wise Resources
+                    </h3>
+                    <div class="space-y-4" id="chapterResourcesList">
+                        <!-- Chapter resources will be populated here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Mobile Navigation -->
+    <div class="mobile-nav md:hidden hidden" id="mobileNav">
+        <div class="flex bg-gradient-to-r from-purple-50 to-blue-50">
+            <button onclick="showSection('dashboard')" class="mobile-nav-item">
+                <svg class="w-5 h-5 mx-auto mb-1" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z"/>
+                </svg>
+                <span class="text-xs">Home</span>
+            </button>
+            <button onclick="showSection('aiChat')" class="mobile-nav-item">
+                <svg class="w-5 h-5 mx-auto mb-1" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M20 2H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h4l4 4 4-4h4c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/>
+                </svg>
+                <span class="text-xs">AI</span>
+            </button>
+            <button onclick="showSection('mockTests')" class="mobile-nav-item">
+                <svg class="w-5 h-5 mx-auto mb-1" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 2 2h8c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/>
+                </svg>
+                <span class="text-xs">Tests</span>
+            </button>
+            <button onclick="showSection('scheduler')" class="mobile-nav-item">
+                <svg class="w-5 h-5 mx-auto mb-1" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2z"/>
+                </svg>
+                <span class="text-xs">Schedule</span>
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // Global variables
+        let currentSection = 'dashboard';
+        let currentTestData = null;
+        let currentQuestionIndex = 0;
+        let testTimer = null;
+        let testTimeRemaining = 0;
+        let userAnswers = [];
+        let userData = {};
+        let scheduleItems = [];
+        let studyGroups = [];
+        let notes = [];
+        let isDarkMode = false;
+        let streakCount = 12;
+
+        // Database connection configuration
+const dbConfig = {
+    connectionString: 'postgresql://neondb_owner:npg_DCPBKRN0Ol2v@ep-fancy-shape-a1himwjm-pooler.ap-southeast-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require',
+    ssl: {
+        rejectUnauthorized: true,
+        require: true
+    }
+};
+
+// Function to handle database operations
+async function performDatabaseOperation(operation, params) {
+    console.log('Database operation requested:', operation, params);
+    showNotification('🔄 Processing your request...', 'info');
+    
+    try {
+        let response;
+        
+        switch(operation) {
+            case 'register':
+                response = await fetch('/api/register', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(params)
+                });
+                break;
+                
+            case 'login':
+                response = await fetch('/api/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(params)
+                });
+                break;
+                
+            // Add other operations as needed
+            default:
+                throw new Error(`Unsupported operation: ${operation}`);
+        }
+        
+        const data = await response.json();
+        
+        if (!response.ok) {
+            throw new Error(data.message || 'Something went wrong');
+        }
+        
+        console.log('API Response:', data);
+        return data;
+        
+    } catch (error) {
+        console.error('API Error:', error);
+        showNotification(`❌ Error: ${error.message}`, 'error');
+        throw error; // Re-throw to allow .catch() in the calling function
+    }
+}
+
+// Example function to save test results to database
+async function saveTestResultsToDatabase(testData) {
+    return performDatabaseOperation('saveTestResults', testData);
+}
+
+// Example function to fetch user data from database
+async function fetchUserDataFromDatabase(username) {
+    return performDatabaseOperation('fetchUserData', { username });
+}
+
+// Initialize app
+document.addEventListener('DOMContentLoaded', function() {
+    createParticles();
+    checkAuthenticationStatus();
+    initializeData();
+});
+
+        // Check if user is already logged in
+        function checkAuthenticationStatus() {
+            const currentUser = localStorage.getItem('currentUser');
+            if (currentUser) {
+                userData = JSON.parse(localStorage.getItem('user_' + currentUser));
+                if (userData) {
+                    showSplashScreen();
+                    setTimeout(() => {
+                        document.getElementById('splashScreen').classList.add('hidden');
+                        document.getElementById('mainApp').classList.remove('hidden');
+                        document.getElementById('mobileNav').classList.remove('hidden');
+                        updateUserInterface();
+                        showSection('dashboard');
+                        setTimeout(showImportantTopicsPopup, 2000);
+                    }, 3000);
+                    return;
+                }
+            }
+            // If not logged in, show splash then login
+            showSplashScreen();
+        }
+
+        // Initialize default data
+        function initializeData() {
+            // Initialize schedule items
+            scheduleItems = [
+                { id: 1, subject: 'Algebra', date: '2024-01-15', time: '14:00', completed: false },
+                { id: 2, subject: 'Geometry', date: '2024-01-16', time: '16:00', completed: true }
+            ];
+            
+            // Initialize study groups
+            studyGroups = [
+                { id: 1, name: 'Algebra Masters', subject: 'algebra', members: 12, description: 'Advanced algebra problem solving' },
+                { id: 2, name: 'Geometry Wizards', subject: 'geometry', members: 8, description: 'Geometric proofs and constructions' }
+            ];
+            
+            // Initialize notes
+            notes = [
+                { id: 1, title: 'Quadratic Equations', subject: 'algebra', content: 'Key formulas and solving methods...', date: '2024-01-10' },
+                { id: 2, title: 'Circle Properties', subject: 'geometry', content: 'Important circle theorems and properties...', date: '2024-01-12' }
+            ];
+        }
+
+        // Create background particles
+        function createParticles() {
+            const particlesContainer = document.getElementById('particles');
+            for (let i = 0; i < 20; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                particle.style.left = Math.random() * 100 + '%';
+                particle.style.animationDelay = Math.random() * 8 + 's';
+                particle.style.animationDuration = (Math.random() * 3 + 5) + 's';
+                particlesContainer.appendChild(particle);
+            }
+        }
+
+        // Show splash screen
+        function showSplashScreen() {
+            const loadingBar = document.getElementById('loadingBar');
+            let progress = 0;
+            const interval = setInterval(() => {
+                progress += Math.random() * 15;
+                if (progress >= 100) {
+                    progress = 100;
+                    clearInterval(interval);
+                    setTimeout(() => {
+                        document.getElementById('splashScreen').classList.add('hidden');
+                        document.getElementById('loginPage').classList.remove('hidden');
+                    }, 500);
+                }
+                loadingBar.style.width = progress + '%';
+            }, 200);
+        }
+
+        // Authentication functions
+        function login(event) {
+            event.preventDefault();
+            const username = document.getElementById('loginUsername').value;
+            const password = document.getElementById('loginPassword').value;
+            
+            if (!username || !password) {
+                showNotification('❌ Please enter both username and password', 'error');
+                return;
+            }
+            
+            // Show loading state
+            const loginBtn = document.querySelector('#loginPage button[type="submit"]');
+            const originalBtnText = loginBtn.innerHTML;
+            loginBtn.disabled = true;
+            loginBtn.innerHTML = '🔐 Logging in...';
+            
+            // Call the API
+            performDatabaseOperation('login', { username, password })
+                .then(data => {
+                    // Store user data in localStorage
+                    localStorage.setItem('isAuthenticated', 'true');
+                    localStorage.setItem('currentUser', username);
+                    localStorage.setItem('userData', JSON.stringify(data.user || {}));
+                    
+                    // Update UI
+                    document.getElementById('loginPage').classList.add('hidden');
+                    document.getElementById('mainApp').classList.remove('hidden');
+                    document.getElementById('mobileNav').classList.remove('hidden');
+                    document.getElementById('dashboardUserName').textContent = username;
+                    
+                    // Clear login form
+                    document.getElementById('loginUsername').value = '';
+                    document.getElementById('loginPassword').value = '';
+                    
+                    // Show welcome message
+                    showNotification(`🌟 Welcome back, ${username}!`, 'success');
+                    
+                    // Initialize app data and update UI
+                    initializeData();
+                    updateUserInterface();
+                    showSection('dashboard');
+                })
+                .catch(error => {
+                    console.error('Login failed:', error);
+                    showNotification(`❌ Login failed: ${error.message}`, 'error');
+                })
+                .finally(() => {
+                    // Reset button state
+                    loginBtn.disabled = false;
+                    loginBtn.innerHTML = originalBtnText;
+                });
+        }
+
+        function register(event) {
+            event.preventDefault();
+            const name = document.getElementById('regName').value;
+            const username = document.getElementById('regUsername').value;
+            const email = document.getElementById('regEmail').value;
+            const contact = document.getElementById('regContact').value;
+            const grade = document.getElementById('regGrade').value;
+            const syllabus = document.getElementById('regSyllabus').value;
+            const password = document.getElementById('regPassword').value;
+            
+            if (!username || !password || !name) {
+                showNotification('❌ Please fill in all required fields', 'error');
+                return;
+            }
+            
+            // Create user object
+            const newUser = {
+                name: name,
+                username: username,
+                email: email,
+                contact: contact,
+                grade: grade,
+                syllabus: syllabus,
+                password: password
+            };
+            
+            performDatabaseOperation('register', newUser)
+                .then(result => {
+                    showNotification('🌟 Account created successfully! Please login to continue!', 'success');
+                    setTimeout(() => {
+                        document.getElementById('registerPage').classList.add('hidden');
+                        document.getElementById('loginPage').classList.remove('hidden');
+                        // Clear registration form
+                        document.getElementById('regName').value = '';
+                        document.getElementById('regUsername').value = '';
+                        document.getElementById('regEmail').value = '';
+                        document.getElementById('regContact').value = '';
+                        document.getElementById('regGrade').value = '';
+                        document.getElementById('regSyllabus').value = '';
+                        document.getElementById('regPassword').value = '';
+                    }, 1000);
+                })
+                .catch(error => {
+                    console.error('Registration failed:', error);
+                });
+        }
+
+        function updateUserInterface() {
+            document.getElementById('dashboardUserName').textContent = userData.name;
+            document.getElementById('headerUserName').textContent = userData.name;
+            document.getElementById('dashboardGrade').textContent = 'Grade ' + userData.grade;
+            document.getElementById('dashboardSyllabus').textContent = userData.syllabus.toUpperCase();
+            document.getElementById('userXP').textContent = userData.xp + ' XP';
+            document.getElementById('userLevel').textContent = userData.level;
+            document.getElementById('streakCount').textContent = userData.streak || 0;
+            
+            // Update dashboard stats
+            document.getElementById('lessonsCompletedDisplay').textContent = userData.lessonsCompleted || 0;
+            document.getElementById('userXPDisplay').textContent = userData.xp || 0;
+            document.getElementById('accuracyRateDisplay').textContent = (userData.accuracyRate || 0) + '%';
+            
+            // Update progress bars
+            const lessonsProgress = Math.min((userData.lessonsCompleted || 0) / 50, 1);
+            document.getElementById('lessonsProgressBar').style.width = (lessonsProgress * 100) + '%';
+            
+            const xpProgress = Math.min(((userData.xp || 0) % 1000) / 1000, 1);
+            document.getElementById('xpBar').style.width = (xpProgress * 100) + '%';
+            
+            const accuracyProgress = Math.min((userData.accuracyRate || 0) / 100, 1);
+            document.getElementById('accuracyProgressBar').style.width = (accuracyProgress * 100) + '%';
+            
+            // Update avatar with first letter of name
+            const avatarElements = document.querySelectorAll('.avatar-container .w-10');
+            avatarElements.forEach(avatar => {
+                avatar.textContent = userData.name.charAt(0).toUpperCase();
+            });
+        }
+
+        function showLogin() {
+            document.getElementById('registerPage').classList.add('hidden');
+            document.getElementById('loginPage').classList.remove('hidden');
+        }
+
+        function showRegister() {
+            document.getElementById('loginPage').classList.add('hidden');
+            document.getElementById('registerPage').classList.remove('hidden');
+        }
+
+        // Navigation
+        function showSection(sectionName) {
+            // Hide all sections
+            const sections = ['dashboard', 'aiChat', 'mockTests', 'scheduler', 'studyGroups', 'notes', 'resources'];
+            sections.forEach(section => {
+                document.getElementById(section).classList.add('hidden');
+            });
+            
+            // Show selected section
+            document.getElementById(sectionName).classList.remove('hidden');
+            currentSection = sectionName;
+            
+            // Update mobile nav
+            document.querySelectorAll('.mobile-nav-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            
+            // Initialize section-specific content
+            initializeSectionContent(sectionName);
+        }
+
+        // Notification system
+        function showNotification(message, type = 'info') {
+            const container = document.getElementById('notificationContainer');
+            const notification = document.createElement('div');
+            notification.className = `notification-popup p-4 rounded-xl shadow-lg text-white font-medium ${
+                type === 'success' ? 'bg-gradient-to-r from-green-500 to-green-600' :
+                type === 'error' ? 'bg-gradient-to-r from-red-500 to-red-600' :
+                'bg-gradient-to-r from-blue-500 to-blue-600'
+            }`;
+            notification.textContent = message;
+            
+            container.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.remove();
+            }, 4000);
+        }
+
+        // AI Chat functionality
+        function sendMessage(event) {
+            event.preventDefault();
+            const input = document.getElementById('messageInput');
+            const message = input.value.trim();
+            
+            if (!message) return;
+            
+            // Add user message
+            addChatMessage(message, 'user');
+            input.value = '';
+            
+            // Simulate AI response with actual problem solving
+            setTimeout(() => {
+                const response = generateAIResponse(message);
+                addChatMessage(response, 'ai');
+            }, 1000);
+        }
+
+        function addChatMessage(message, sender) {
+            const chatMessages = document.getElementById('chatMessages');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = 'flex items-start space-x-3';
+            
+            if (sender === 'user') {
+                messageDiv.innerHTML = `
+                    <div class="w-10 h-10 rounded-full bg-gradient-to-r from-purple-500 to-blue-500 flex items-center justify-center text-white text-sm font-bold shadow-lg">A</div>
+                    <div class="chat-bubble bg-gradient-to-r from-purple-100 to-blue-100 p-4 rounded-xl shadow-lg border border-purple-200">
+                        <p class="text-gray-800">${message}</p>
+                    </div>
+                `;
+            } else {
+                messageDiv.innerHTML = `
+                    <div class="w-10 h-10 rounded-full bg-gradient-to-r from-purple-500 to-blue-500 flex items-center justify-center text-white text-sm font-bold shadow-lg">🦙</div>
+                    <div class="chat-bubble bg-white p-4 rounded-xl shadow-lg border border-purple-100">
+                        <p class="text-gray-800">${message}</p>
+                    </div>
+                `;
+            }
+            
+            chatMessages.appendChild(messageDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        function generateAIResponse(question) {
+            // Enhanced LLAMA2-inspired AI responses with comprehensive problem solving
+            const lowerQuestion = question.toLowerCase();
+            
+            // Advanced pattern matching for various mathematical concepts
+            if (lowerQuestion.includes('what is') || lowerQuestion.includes('define') || lowerQuestion.includes('explain')) {
+                return handleDefinitionQuestions(question);
+            }
+            
+            if (lowerQuestion.includes('how to') || lowerQuestion.includes('steps') || lowerQuestion.includes('method')) {
+                return handleMethodQuestions(question);
+            }
+            
+            if (lowerQuestion.includes('why') || lowerQuestion.includes('reason') || lowerQuestion.includes('because')) {
+                return handleReasoningQuestions(question);
+            }
+            
+            // Linear equations
+            if (lowerQuestion.includes('solve') && (lowerQuestion.includes('x') || lowerQuestion.includes('y'))) {
+                // Simple linear equation pattern: ax + b = c
+                const linearMatch = question.match(/(\d*)\s*x\s*([+-])\s*(\d+)\s*=\s*(\d+)/);
+                if (linearMatch) {
+                    const a = parseInt(linearMatch[1]) || 1;
+                    const sign = linearMatch[2];
+                    const b = parseInt(linearMatch[3]);
+                    const c = parseInt(linearMatch[4]);
+                    const actualB = sign === '+' ? b : -b;
+                    const x = (c - actualB) / a;
+                    
+                    return `✨ Let me solve ${question} step by step:
+
+**Step 1:** Isolate the x term
+${a}x ${sign} ${b} = ${c}
+${a}x = ${c} ${sign === '+' ? '-' : '+'} ${b}
+${a}x = ${c - actualB}
+
+**Step 2:** Divide by the coefficient
+x = ${c - actualB} ÷ ${a}
+x = ${x}
+
+**Answer:** x = ${x} ✨
+
+Let me verify: ${a}(${x}) ${sign} ${b} = ${a * x + actualB} = ${c} ✓`;
+                }
+            }
+            
+            // Quadratic equations
+            if (lowerQuestion.includes('x^2') || lowerQuestion.includes('quadratic')) {
+                // Handle specific quadratic patterns
+                if (lowerQuestion.includes('x^2 + 5x + 6 = 0')) {
+                    return `✨ Let me solve x² + 5x + 6 = 0 step by step:
+
+**Step 1:** Factor the quadratic
+We need two numbers that multiply to 6 and add to 5
+Those numbers are 2 and 3: (2)(3) = 6 and 2 + 3 = 5
+
+**Step 2:** Write the factored form
+x² + 5x + 6 = (x + 2)(x + 3) = 0
+
+**Step 3:** Solve each factor
+x + 2 = 0  →  x = -2
+x + 3 = 0  →  x = -3
+
+**Answer:** x = -2 or x = -3 ✨
+
+Verification: (-2)² + 5(-2) + 6 = 4 - 10 + 6 = 0 ✓`;
+                }
+                
+                // General quadratic pattern
+                const quadMatch = question.match(/x\^2\s*([+-])\s*(\d+)x\s*([+-])\s*(\d+)\s*=\s*0/);
+                if (quadMatch) {
+                    return `✨ I can solve this quadratic equation! For ax² + bx + c = 0, I'll use factoring or the quadratic formula. Let me work through this step by step... 🎯`;
+                }
+                
+                return `✨ I can help you solve quadratic equations! For ax² + bx + c = 0, I can use factoring, completing the square, or the quadratic formula. What specific quadratic would you like me to solve? 🎯`;
+            }
+            
+            // Derivatives
+            if (lowerQuestion.includes('derivative') || lowerQuestion.includes('differentiate')) {
+                if (lowerQuestion.includes('x^3 + 2x^2 + x + 1')) {
+                    return `✨ Let me find the derivative of f(x) = x³ + 2x² + x + 1:
+
+**Using the power rule:** d/dx[xⁿ] = nxⁿ⁻¹
+
+**Step by step:**
+- d/dx[x³] = 3x²
+- d/dx[2x²] = 2 × 2x¹ = 4x
+- d/dx[x] = 1
+- d/dx[1] = 0
+
+**Answer:** f'(x) = 3x² + 4x + 1 ✨
+
+This represents the slope of the tangent line at any point x! 📈`;
+                }
+                
+                // Handle simple polynomial derivatives
+                const polyMatch = question.match(/x\^(\d+)/);
+                if (polyMatch) {
+                    const power = parseInt(polyMatch[1]);
+                    return `✨ For x^${power}, using the power rule:
+d/dx[x^${power}] = ${power}x^${power-1} ✨`;
+                }
+                
+                return `✨ I can find derivatives using the power rule, product rule, quotient rule, and chain rule! What function would you like me to differentiate? 📈`;
+            }
+            
+            // Integrals
+            if (lowerQuestion.includes('integral') || lowerQuestion.includes('integrate')) {
+                const integralMatch = question.match(/x\^(\d+)/);
+                if (integralMatch) {
+                    const power = parseInt(integralMatch[1]);
+                    const newPower = power + 1;
+                    return `✨ Let me integrate x^${power}:
+
+**Using the power rule for integration:** ∫x^n dx = x^(n+1)/(n+1) + C
+
+**Step by step:**
+∫x^${power} dx = x^${newPower}/${newPower} + C
+
+**Answer:** x^${newPower}/${newPower} + C ✨`;
+                }
+                return `✨ I can help with integration! What function would you like me to integrate? 📊`;
+            }
+            
+            // Geometry - Area calculations
+            if (lowerQuestion.includes('area')) {
+                if (lowerQuestion.includes('triangle')) {
+                    const baseMatch = question.match(/base\s*(\d+)/);
+                    const heightMatch = question.match(/height\s*(\d+)/);
+                    if (baseMatch && heightMatch) {
+                        const base = parseInt(baseMatch[1]);
+                        const height = parseInt(heightMatch[1]);
+                        const area = 0.5 * base * height;
+                        
+                        return `✨ Let me find the area of a triangle with base ${base} and height ${height}:
+
+**Formula:** Area = ½ × base × height
+
+**Calculation:**
+Area = ½ × ${base} × ${height}
+Area = ½ × ${base * height}
+Area = ${area}
+
+**Answer:** The area is ${area} square units ✨
+
+Remember: The height must be perpendicular to the base! 📐`;
+                    }
+                }
+                
+                if (lowerQuestion.includes('circle')) {
+                    const radiusMatch = question.match(/radius\s*(\d+)/);
+                    if (radiusMatch) {
+                        const radius = parseInt(radiusMatch[1]);
+                        const area = Math.PI * radius * radius;
+                        
+                        return `✨ Let me find the area of a circle with radius ${radius}:
+
+**Formula:** Area = πr²
+
+**Calculation:**
+Area = π × ${radius}²
+Area = π × ${radius * radius}
+Area = ${radius * radius}π ≈ ${area.toFixed(2)}
+
+**Answer:** The area is ${radius * radius}π square units (≈ ${area.toFixed(2)}) ✨`;
+                    }
+                }
+                
+                return `✨ I can calculate areas of triangles, circles, rectangles, and more! What shape's area would you like me to find? 📐`;
+            }
+            
+            // Trigonometry
+            if (lowerQuestion.includes('sin') || lowerQuestion.includes('cos') || lowerQuestion.includes('tan')) {
+                if (lowerQuestion.includes('sin(x) = 0.5')) {
+                    return `✨ Let me solve sin(x) = 0.5 for x ∈ [0, 2π]:
+
+**Step 1:** Find the reference angle
+sin⁻¹(0.5) = π/6 (or 30°)
+
+**Step 2:** Find all solutions in [0, 2π]
+Since sin is positive in quadrants I and II:
+- x = π/6 (first quadrant)
+- x = π - π/6 = 5π/6 (second quadrant)
+
+**Answer:** x = π/6 or x = 5π/6 ✨
+**In degrees:** x = 30° or x = 150° 📐`;
+                }
+                return `✨ I can solve trigonometric equations and explain trig functions! What specific trig problem do you have? 📐`;
+            }
+            
+            // Percentage calculations
+            if (lowerQuestion.includes('percent') || lowerQuestion.includes('%')) {
+                const percentMatch = question.match(/(\d+)%\s*of\s*(\d+)/);
+                if (percentMatch) {
+                    const percent = parseInt(percentMatch[1]);
+                    const number = parseInt(percentMatch[2]);
+                    const result = (percent / 100) * number;
+                    
+                    return `✨ Let me calculate ${percent}% of ${number}:
+
+**Formula:** Percentage = (percent/100) × number
+
+**Calculation:**
+${percent}% of ${number} = (${percent}/100) × ${number}
+= ${percent/100} × ${number}
+= ${result}
+
+**Answer:** ${percent}% of ${number} is ${result} ✨`;
+                }
+            }
+            
+            // Factoring
+            if (lowerQuestion.includes('factor')) {
+                if (lowerQuestion.includes('x^2 + 5x + 6')) {
+                    return `✨ Let me factor x² + 5x + 6:
+
+**Step 1:** Find two numbers that multiply to 6 and add to 5
+Factors of 6: 1×6, 2×3
+Check: 2 + 3 = 5 ✓ and 2 × 3 = 6 ✓
+
+**Step 2:** Write the factored form
+x² + 5x + 6 = (x + 2)(x + 3)
+
+**Answer:** (x + 2)(x + 3) ✨
+
+Verification: (x + 2)(x + 3) = x² + 3x + 2x + 6 = x² + 5x + 6 ✓`;
+                }
+            }
+            
+            // Enhanced pattern matching for step-by-step solutions
+            if (lowerQuestion.includes('solve') || lowerQuestion.includes('find') || lowerQuestion.includes('calculate')) {
+                return handleGeneralSolveRequest(question);
+            }
+            
+            // General responses for unmatched patterns
+            const responses = [
+                `✨ I can solve that step by step! Please provide the specific equation or problem you'd like me to work through. 🎯`,
+                `🎩 I'm ready to work some mathematical magic! What specific calculation or problem would you like me to help with? ✨`,
+                `📚 I can help with algebra, calculus, geometry, trigonometry, percentages, and more! What would you like to explore? 🌟`,
+                `🧮 Let me help you with that! Could you provide the specific mathematical expression or problem? ✨`
+            ];
+            
+            return responses[Math.floor(Math.random() * responses.length)];
+        }
+
+        function handleGeneralSolveRequest(question) {
+            // Enhanced problem solver for any mathematical question
+            const lowerQuestion = question.toLowerCase();
+            
+            // Arithmetic operations
+            const arithmeticMatch = question.match(/(\d+)\s*([+\-*/])\s*(\d+)/);
+            if (arithmeticMatch) {
+                const num1 = parseFloat(arithmeticMatch[1]);
+                const operator = arithmeticMatch[2];
+                const num2 = parseFloat(arithmeticMatch[3]);
+                let result;
+                let operation;
+                
+                switch (operator) {
+                    case '+':
+                        result = num1 + num2;
+                        operation = 'addition';
+                        break;
+                    case '-':
+                        result = num1 - num2;
+                        operation = 'subtraction';
+                        break;
+                    case '*':
+                        result = num1 * num2;
+                        operation = 'multiplication';
+                        break;
+                    case '/':
+                        result = num1 / num2;
+                        operation = 'division';
+                        break;
+                }
+                
+                return `✨ Let me solve this ${operation} problem step by step:
+
+**Problem:** ${num1} ${operator} ${num2}
+
+**Step 1:** Identify the operation
+We need to perform ${operation} with ${num1} and ${num2}
+
+**Step 2:** Calculate
+${num1} ${operator} ${num2} = ${result}
+
+**Answer:** ${result} ✨
+
+${operator === '/' && num2 !== 0 ? 'Note: Division gives us the quotient when we divide the first number by the second.' : ''}`;
+            }
+            
+            // Percentage problems
+            const percentMatch = question.match(/(\d+)%\s*of\s*(\d+)/);
+            if (percentMatch) {
+                const percent = parseFloat(percentMatch[1]);
+                const number = parseFloat(percentMatch[2]);
+                const result = (percent / 100) * number;
+                
+                return `✨ Let me calculate ${percent}% of ${number} step by step:
+
+**Step 1:** Convert percentage to decimal
+${percent}% = ${percent} ÷ 100 = ${percent / 100}
+
+**Step 2:** Multiply by the number
+${percent / 100} × ${number} = ${result}
+
+**Answer:** ${percent}% of ${number} is ${result} ✨`;
+            }
+            
+            // Square root problems
+            const sqrtMatch = question.match(/sqrt\((\d+)\)|square root of (\d+)/);
+            if (sqrtMatch) {
+                const number = parseFloat(sqrtMatch[1] || sqrtMatch[2]);
+                const result = Math.sqrt(number);
+                
+                return `✨ Let me find the square root of ${number}:
+
+**Problem:** √${number}
+
+**Step 1:** Find the number that when multiplied by itself gives ${number}
+We need to find x where x × x = ${number}
+
+**Step 2:** Calculate
+√${number} = ${result}
+
+**Answer:** √${number} = ${result} ✨
+
+**Verification:** ${result} × ${result} = ${result * result} ${result * result === number ? '✓' : '≈ ' + number}`;
+            }
+            
+            // Power/exponent problems
+            const powerMatch = question.match(/(\d+)\^(\d+)|(\d+) to the power of (\d+)/);
+            if (powerMatch) {
+                const base = parseFloat(powerMatch[1] || powerMatch[3]);
+                const exponent = parseFloat(powerMatch[2] || powerMatch[4]);
+                const result = Math.pow(base, exponent);
+                
+                return `✨ Let me calculate ${base}^${exponent} step by step:
+
+**Problem:** ${base}^${exponent}
+
+**Step 1:** Understand the notation
+${base}^${exponent} means multiply ${base} by itself ${exponent} times
+
+**Step 2:** Calculate
+${base}^${exponent} = ${Array(exponent).fill(base).join(' × ')} = ${result}
+
+**Answer:** ${base}^${exponent} = ${result} ✨`;
+            }
+            
+            // Area calculations
+            if (lowerQuestion.includes('area') && lowerQuestion.includes('rectangle')) {
+                const lengthMatch = question.match(/length\s*(\d+)/);
+                const widthMatch = question.match(/width\s*(\d+)/);
+                if (lengthMatch && widthMatch) {
+                    const length = parseFloat(lengthMatch[1]);
+                    const width = parseFloat(widthMatch[1]);
+                    const area = length * width;
+                    
+                    return `✨ Let me find the area of a rectangle:
+
+**Given:**
+- Length = ${length}
+- Width = ${width}
+
+**Formula:** Area = Length × Width
+
+**Step 1:** Substitute the values
+Area = ${length} × ${width}
+
+**Step 2:** Calculate
+Area = ${area}
+
+**Answer:** The area is ${area} square units ✨`;
+                }
+            }
+            
+            // Distance formula
+            if (lowerQuestion.includes('distance') && (lowerQuestion.includes('point') || lowerQuestion.includes('coordinate'))) {
+                return `✨ I can help you find the distance between two points!
+
+**Distance Formula:** d = √[(x₂-x₁)² + (y₂-y₁)²]
+
+Please provide the coordinates of the two points in the format:
+"Find the distance between (x₁, y₁) and (x₂, y₂)"
+
+For example: "Find the distance between (3, 4) and (7, 1)"
+
+I'll then solve it step by step for you! 📐`;
+            }
+            
+            return `✨ I can solve many types of mathematical problems step by step! 
+
+**I can help with:**
+- Basic arithmetic (addition, subtraction, multiplication, division)
+- Percentages and proportions
+- Square roots and powers
+- Area and perimeter calculations
+- Distance between points
+- Linear and quadratic equations
+- Trigonometric problems
+- And much more!
+
+Please provide the specific problem you'd like me to solve, and I'll work through it step by step! 🎯`;
+        }
+
+        // LLAMA2-inspired helper functions for different question types
+        function handleDefinitionQuestions(question) {
+            const lowerQuestion = question.toLowerCase();
+            
+            if (lowerQuestion.includes('derivative')) {
+                return `🧠 **Definition of Derivative:**
+
+A derivative represents the rate of change of a function at any given point. Think of it as the slope of the tangent line to a curve.
+
+**Mathematical Definition:**
+f'(x) = lim(h→0) [f(x+h) - f(x)] / h
+
+**Real-world Applications:**
+- Velocity (rate of change of position)
+- Acceleration (rate of change of velocity)
+- Growth rates in biology and economics
+
+**Key Rules:**
+- Power Rule: d/dx[x^n] = nx^(n-1)
+- Product Rule: d/dx[f(x)g(x)] = f'(x)g(x) + f(x)g'(x)
+- Chain Rule: d/dx[f(g(x))] = f'(g(x)) × g'(x)
+
+Would you like me to solve a specific derivative problem? ✨`;
+            }
+            
+            if (lowerQuestion.includes('integral')) {
+                return `🧠 **Definition of Integral:**
+
+An integral represents the area under a curve or the accumulation of quantities over an interval.
+
+**Two Types:**
+1. **Definite Integral:** ∫[a to b] f(x)dx = Area under curve from x=a to x=b
+2. **Indefinite Integral:** ∫f(x)dx = F(x) + C (antiderivative)
+
+**Fundamental Theorem of Calculus:**
+∫[a to b] f(x)dx = F(b) - F(a), where F'(x) = f(x)
+
+**Applications:**
+- Finding areas and volumes
+- Calculating work and energy
+- Probability distributions
+- Economics (consumer surplus)
+
+**Basic Rules:**
+- Power Rule: ∫x^n dx = x^(n+1)/(n+1) + C
+- Sum Rule: ∫[f(x) + g(x)]dx = ∫f(x)dx + ∫g(x)dx
+
+Need help with a specific integration problem? 📊`;
+            }
+            
+            if (lowerQuestion.includes('matrix') || lowerQuestion.includes('matrices')) {
+                return `🧠 **Definition of Matrix:**
+
+A matrix is a rectangular array of numbers, symbols, or expressions arranged in rows and columns.
+
+**Notation:** An m×n matrix has m rows and n columns
+[a₁₁  a₁₂  a₁₃]
+[a₂₁  a₂₂  a₂₃]
+
+**Types of Matrices:**
+- Square Matrix: m = n (same rows and columns)
+- Identity Matrix: Square matrix with 1s on diagonal, 0s elsewhere
+- Zero Matrix: All elements are zero
+- Transpose: A^T where rows become columns
+
+**Operations:**
+- Addition: Add corresponding elements
+- Multiplication: Row × Column dot product
+- Determinant: Scalar value for square matrices
+- Inverse: A⁻¹ where A × A⁻¹ = I
+
+**Applications:**
+- Computer graphics transformations
+- Solving systems of equations
+- Data analysis and machine learning
+- Quantum mechanics
+
+Want to practice matrix operations? 🔢`;
+            }
+            
+            return `🧠 I can explain many mathematical concepts! Could you be more specific about what you'd like me to define or explain? I'm well-versed in algebra, calculus, geometry, statistics, and more! ✨`;
+        }
+
+        function handleMethodQuestions(question) {
+            const lowerQuestion = question.toLowerCase();
+            
+            if (lowerQuestion.includes('solve quadratic')) {
+                return `🧠 **How to Solve Quadratic Equations:**
+
+**Method 1: Factoring**
+1. Write in standard form: ax² + bx + c = 0
+2. Find two numbers that multiply to 'ac' and add to 'b'
+3. Factor: (px + q)(rx + s) = 0
+4. Set each factor to zero and solve
+
+**Method 2: Quadratic Formula**
+x = [-b ± √(b² - 4ac)] / (2a)
+
+**Method 3: Completing the Square**
+1. Move constant to right side
+2. Complete the square on left side
+3. Take square root of both sides
+4. Solve for x
+
+**Example:** x² + 5x + 6 = 0
+Factoring: (x + 2)(x + 3) = 0
+Solutions: x = -2 or x = -3
+
+Which method would you like me to demonstrate with a specific problem? 🎯`;
+            }
+            
+            if (lowerQuestion.includes('find derivative')) {
+                return `🧠 **How to Find Derivatives - Step by Step:**
+
+**Step 1: Identify the Function Type**
+- Polynomial: Use power rule
+- Product of functions: Use product rule
+- Composition: Use chain rule
+- Quotient: Use quotient rule
+
+**Step 2: Apply the Appropriate Rule**
+
+**Power Rule:** d/dx[x^n] = nx^(n-1)
+**Product Rule:** d/dx[f(x)g(x)] = f'(x)g(x) + f(x)g'(x)
+**Chain Rule:** d/dx[f(g(x))] = f'(g(x)) × g'(x)
+**Quotient Rule:** d/dx[f(x)/g(x)] = [f'(x)g(x) - f(x)g'(x)] / [g(x)]²
+
+**Step 3: Simplify**
+Combine like terms and factor if possible
+
+**Example Process:**
+f(x) = 3x² + 2x + 1
+f'(x) = 3(2x) + 2(1) + 0 = 6x + 2
+
+Give me a specific function and I'll walk through it step by step! 📈`;
+            }
+            
+            return `🧠 I can guide you through various mathematical methods! What specific process would you like me to explain step by step? ✨`;
+        }
+
+        function handleReasoningQuestions(question) {
+            const lowerQuestion = question.toLowerCase();
+            
+            if (lowerQuestion.includes('why') && lowerQuestion.includes('derivative')) {
+                return `🧠 **Why Do We Use Derivatives?**
+
+**Fundamental Reason:** Derivatives measure instantaneous rate of change
+
+**Real-World Applications:**
+1. **Physics:** Velocity is derivative of position, acceleration is derivative of velocity
+2. **Economics:** Marginal cost/revenue (rate of change of cost/revenue)
+3. **Biology:** Population growth rates, reaction rates
+4. **Engineering:** Optimization problems, control systems
+
+**Mathematical Importance:**
+- Find maximum and minimum values (critical points)
+- Determine concavity and inflection points
+- Analyze function behavior
+- Solve optimization problems
+
+**Example:** Why is velocity the derivative of position?
+If position = f(t), then velocity = f'(t) because velocity tells us how fast position is changing at any instant.
+
+**The Beauty:** Derivatives connect the abstract mathematical world with real physical phenomena! 🌟
+
+What specific application of derivatives interests you most? ⚡`;
+            }
+            
+            if (lowerQuestion.includes('why') && (lowerQuestion.includes('pi') || lowerQuestion.includes('π'))) {
+                return `🧠 **Why is π (Pi) So Important?**
+
+**Definition:** π is the ratio of a circle's circumference to its diameter
+
+**Why This Ratio is Constant:**
+All circles are similar - they have the same shape, just different sizes. This means the ratio C/d is always the same!
+
+**Mathematical Significance:**
+- Appears in trigonometry: sin, cos, tan functions
+- Shows up in calculus: areas, volumes, infinite series
+- Probability: normal distribution, random walks
+- Physics: wave equations, quantum mechanics
+
+**Fascinating Facts:**
+- π is irrational (never-ending, non-repeating decimal)
+- π ≈ 3.14159265358979323846...
+- Appears in unexpected places (not just circles!)
+
+**Examples Where π Appears:**
+- Area of circle: A = πr²
+- Volume of sphere: V = (4/3)πr³
+- Euler's identity: e^(iπ) + 1 = 0
+
+π connects geometry, algebra, and analysis in beautiful ways! 🔄
+
+Want to explore more about π or circular mathematics? 🌀`;
+            }
+            
+            return `🧠 Great question! Mathematical reasoning helps us understand the 'why' behind formulas and methods. What specific concept would you like me to explain the reasoning behind? 🤔`;
+        }
+
+        function askQuickQuestion(question) {
+            document.getElementById('messageInput').value = question;
+            const event = { preventDefault: () => {} };
+            sendMessage(event);
+        }
+
+        function clearChat() {
+            const chatMessages = document.getElementById('chatMessages');
+            chatMessages.innerHTML = `
+                <div class="flex items-start space-x-3">
+                    <div class="w-10 h-10 rounded-full bg-gradient-to-r from-purple-500 to-blue-500 flex items-center justify-center text-white text-sm font-bold shadow-lg">🦙</div>
+                    <div class="chat-bubble bg-white p-4 rounded-xl shadow-lg border border-purple-100">
+                        <p class="text-gray-800">Hello! I'm your enhanced AI math tutor with magical problem-solving powers! 🎩✨ I can solve equations, explain concepts, and provide step-by-step solutions. Ask me any math question!</p>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Mock Tests functionality
+        function initializeMockTests() {
+            const testGrid = document.getElementById('testGrid');
+            if (testGrid.children.length === 0) {
+                const tests = [
+                    {
+                        id: 1,
+                        title: 'Algebra Basics ✨',
+                        description: 'Fundamental algebraic concepts',
+                        questions: 10,
+                        duration: 30,
+                        difficulty: 'Beginner',
+                        xp: 100,
+                        color: 'blue'
+                    },
+                    {
+                        id: 2,
+                        title: 'Geometry Fundamentals 📐',
+                        description: 'Shapes, angles, and measurements',
+                        questions: 15,
+                        duration: 45,
+                        difficulty: 'Intermediate',
+                        xp: 150,
+                        color: 'green'
+                    },
+                    {
+                        id: 3,
+                        title: 'Calculus Challenge 🧮',
+                        description: 'Derivatives and integrals',
+                        questions: 20,
+                        duration: 60,
+                        difficulty: 'Advanced',
+                        xp: 200,
+                        color: 'purple'
+                    },
+                    {
+                        id: 4,
+                        title: 'Trigonometry Mastery 📊',
+                        description: 'Sin, cos, tan and their applications',
+                        questions: 12,
+                        duration: 36,
+                        difficulty: 'Intermediate',
+                        xp: 120,
+                        color: 'yellow'
+                    },
+                    {
+                        id: 5,
+                        title: 'Statistics & Probability 📈',
+                        description: 'Data analysis and probability theory',
+                        questions: 18,
+                        duration: 54,
+                        difficulty: 'Intermediate',
+                        xp: 180,
+                        color: 'indigo'
+                    },
+                    {
+                        id: 6,
+                        title: 'Linear Algebra 🔢',
+                        description: 'Matrices, vectors, and systems',
+                        questions: 25,
+                        duration: 75,
+                        difficulty: 'Advanced',
+                        xp: 250,
+                        color: 'pink'
+                    },
+                    {
+                        id: 7,
+                        title: 'Number Theory 🔍',
+                        description: 'Prime numbers, divisibility, modular arithmetic',
+                        questions: 15,
+                        duration: 45,
+                        difficulty: 'Advanced',
+                        xp: 200,
+                        color: 'red'
+                    },
+                    {
+                        id: 8,
+                        title: 'Discrete Mathematics 🎯',
+                        description: 'Logic, sets, combinatorics',
+                        questions: 20,
+                        duration: 60,
+                        difficulty: 'Advanced',
+                        xp: 220,
+                        color: 'teal'
+                    },
+                    {
+                        id: 9,
+                        title: 'Pre-Calculus Review 📚',
+                        description: 'Functions, limits, and sequences',
+                        questions: 16,
+                        duration: 48,
+                        difficulty: 'Intermediate',
+                        xp: 160,
+                        color: 'orange'
+                    }
+                ];
+
+                tests.forEach(test => {
+                    const testCard = createTestCard(test);
+                    testGrid.appendChild(testCard);
+                });
+            }
+        }
+
+        function createTestCard(test) {
+            const card = document.createElement('div');
+            card.className = `interactive-element bg-white rounded-2xl shadow-xl p-6 border border-${test.color}-100`;
+            card.innerHTML = `
+                <div class="flex items-center justify-between mb-4">
+                    <div class="bg-gradient-to-r from-${test.color}-400 to-${test.color}-600 p-3 rounded-full shadow-lg">
+                        <span class="text-white text-xl">📝</span>
+                    </div>
+                    <span class="bg-gradient-to-r from-${test.color}-100 to-${test.color}-200 text-${test.color}-800 px-3 py-1 rounded-full text-xs font-semibold">${test.difficulty}</span>
+                </div>
+                <h3 class="text-xl font-semibold text-gray-800 mb-2">${test.title}</h3>
+                <p class="text-gray-600 text-sm mb-4">${test.description}</p>
+                <div class="space-y-2 mb-4">
+                    <div class="flex items-center text-sm text-gray-600">
+                        <span class="mr-2">📊</span>
+                        <span>${test.questions} questions</span>
+                    </div>
+                    <div class="flex items-center text-sm text-gray-600">
+                        <span class="mr-2">⏱️</span>
+                        <span>${test.duration} minutes</span>
+                    </div>
+                    <div class="flex items-center text-sm text-gray-600">
+                        <span class="mr-2">✨</span>
+                        <span>${test.xp} XP reward</span>
+                    </div>
+                </div>
+                <button onclick="startTest(${test.id})" class="w-full bg-gradient-to-r from-${test.color}-600 to-blue-600 text-white py-3 rounded-xl hover:from-${test.color}-700 hover:to-blue-700 font-medium shadow-lg transition-all">
+                    Start Magical Test ✨
+                </button>
+            `;
+            return card;
+        }
+
+        function startTest(testId) {
+            // Generate test questions based on testId
+            const testData = generateTestQuestions(testId);
+            currentTestData = testData;
+            currentQuestionIndex = 0;
+            userAnswers = new Array(testData.questions.length).fill(null);
+            
+            // Show test interface
+            document.getElementById('testInterface').classList.remove('hidden');
+            document.getElementById('testTitle').textContent = testData.title;
+            document.getElementById('testDescription').textContent = testData.description;
+            
+            // Start timer
+            testTimeRemaining = testData.duration * 60; // Convert to seconds
+            startTestTimer();
+            
+            // Load first question
+            loadQuestion(0);
+        }
+
+        function generateTestQuestions(testId) {
+            const grade = parseInt(userData.grade);
+            const syllabus = userData.syllabus;
+            
+            // Generate content based on grade and syllabus with randomized questions
+            const testTemplates = getGradeBasedTestTemplates(grade, syllabus);
+            const baseTest = testTemplates[testId] || testTemplates[1];
+            
+            // Randomize questions for repeat attempts
+            const randomizedTest = {
+                ...baseTest,
+                questions: generateRandomizedQuestions(baseTest.topic, grade, syllabus, baseTest.questionCount || 15)
+            };
+            
+            return randomizedTest;
+        }
+
+        function generateRandomizedQuestions(topic, grade, syllabus, count) {
+            const questionPools = getQuestionPools(topic, grade, syllabus);
+            const selectedQuestions = [];
+            
+            // Randomly select questions from the pool
+            for (let i = 0; i < count && i < questionPools.length; i++) {
+                const randomIndex = Math.floor(Math.random() * questionPools.length);
+                const question = questionPools[randomIndex];
+                
+                // Avoid duplicates
+                if (!selectedQuestions.find(q => q.question === question.question)) {
+                    selectedQuestions.push(question);
+                } else {
+                    i--; // Try again if duplicate
+                }
+            }
+            
+            // If we need more questions, generate variations
+            while (selectedQuestions.length < count) {
+                const baseQuestion = questionPools[Math.floor(Math.random() * questionPools.length)];
+                const variation = generateQuestionVariation(baseQuestion, topic);
+                selectedQuestions.push(variation);
+            }
+            
+            return selectedQuestions;
+        }
+
+        function getQuestionPools(topic, grade, syllabus) {
+            // Comprehensive question pools for different topics and grades
+            const pools = {
+                'algebra': {
+                    elementary: [
+                        {
+                            question: 'What is 7 + 5?',
+                            options: ['10', '11', '12', '13'],
+                            correct: 2,
+                            explanation: '7 + 5 = 12'
+                        },
+                        {
+                            question: 'What is 15 - 8?',
+                            options: ['6', '7', '8', '9'],
+                            correct: 1,
+                            explanation: '15 - 8 = 7'
+                        },
+                        {
+                            question: 'What is 6 × 4?',
+                            options: ['20', '22', '24', '26'],
+                            correct: 2,
+                            explanation: '6 × 4 = 24'
+                        },
+                        {
+                            question: 'What is 18 ÷ 3?',
+                            options: ['5', '6', '7', '8'],
+                            correct: 1,
+                            explanation: '18 ÷ 3 = 6'
+                        }
+                    ],
+                    middle: [
+                        {
+                            question: 'Solve for x: x + 7 = 15',
+                            options: ['x = 6', 'x = 7', 'x = 8', 'x = 9'],
+                            correct: 2,
+                            explanation: 'x + 7 = 15 → x = 15 - 7 → x = 8'
+                        },
+                        {
+                            question: 'What is 3x when x = 5?',
+                            options: ['12', '15', '18', '20'],
+                            correct: 1,
+                            explanation: '3x = 3 × 5 = 15'
+                        },
+                        {
+                            question: 'Simplify: 4x + 3x',
+                            options: ['6x', '7x', '8x', '12x'],
+                            correct: 1,
+                            explanation: '4x + 3x = (4 + 3)x = 7x'
+                        },
+                        {
+                            question: 'Solve: 2x = 14',
+                            options: ['x = 6', 'x = 7', 'x = 8', 'x = 9'],
+                            correct: 1,
+                            explanation: '2x = 14 → x = 14 ÷ 2 → x = 7'
+                        }
+                    ],
+                    high: [
+                        {
+                            question: 'Solve: x² - 7x + 12 = 0',
+                            options: ['x = 3, 4', 'x = 2, 6', 'x = 1, 12', 'x = 3, 5'],
+                            correct: 0,
+                            explanation: 'Factoring: (x-3)(x-4) = 0, so x = 3 or x = 4'
+                        },
+                        {
+                            question: 'Find the discriminant of x² + 6x + 9 = 0',
+                            options: ['0', '9', '18', '36'],
+                            correct: 0,
+                            explanation: 'Discriminant = b² - 4ac = 36 - 36 = 0'
+                        },
+                        {
+                            question: 'Expand: (x + 3)²',
+                            options: ['x² + 6x + 9', 'x² + 3x + 9', 'x² + 6x + 6', 'x² + 9'],
+                            correct: 0,
+                            explanation: '(x + 3)² = x² + 2(3)x + 3² = x² + 6x + 9'
+                        },
+                        {
+                            question: 'Solve the system: 2x + y = 7, x - y = 2 (find x)',
+                            options: ['x = 2', 'x = 3', 'x = 4', 'x = 5'],
+                            correct: 1,
+                            explanation: 'Adding equations: 3x = 9, so x = 3'
+                        }
+                    ]
+                },
+                'geometry': {
+                    elementary: [
+                        {
+                            question: 'How many sides does a square have?',
+                            options: ['3', '4', '5', '6'],
+                            correct: 1,
+                            explanation: 'A square has 4 equal sides'
+                        },
+                        {
+                            question: 'What is the area of a rectangle with length 5 and width 3?',
+                            options: ['12', '15', '18', '20'],
+                            correct: 1,
+                            explanation: 'Area = length × width = 5 × 3 = 15'
+                        }
+                    ],
+                    middle: [
+                        {
+                            question: 'What is the area of a triangle with base 8 and height 6?',
+                            options: ['20', '24', '28', '32'],
+                            correct: 1,
+                            explanation: 'Area = ½ × base × height = ½ × 8 × 6 = 24'
+                        },
+                        {
+                            question: 'Find the circumference of a circle with radius 7 (use π = 22/7)',
+                            options: ['42', '44', '46', '48'],
+                            correct: 1,
+                            explanation: 'Circumference = 2πr = 2 × (22/7) × 7 = 44'
+                        }
+                    ],
+                    high: [
+                        {
+                            question: 'Find the area of a circle with radius 5 (use π = 3.14)',
+                            options: ['75.5', '78.5', '81.5', '84.5'],
+                            correct: 1,
+                            explanation: 'Area = πr² = 3.14 × 5² = 3.14 × 25 = 78.5'
+                        },
+                        {
+                            question: 'In a right triangle, if one angle is 35°, what is the other acute angle?',
+                            options: ['45°', '50°', '55°', '60°'],
+                            correct: 2,
+                            explanation: 'Sum of angles = 180°, so 90° + 35° + x = 180° → x = 55°'
+                        }
+                    ]
+                },
+                'trigonometry': {
+                    high: [
+                        {
+                            question: 'What is sin 60°?',
+                            options: ['1/2', '√2/2', '√3/2', '1'],
+                            correct: 2,
+                            explanation: 'sin 60° = √3/2'
+                        },
+                        {
+                            question: 'If cos θ = 1/2, then θ = ?',
+                            options: ['30°', '45°', '60°', '90°'],
+                            correct: 2,
+                            explanation: 'cos 60° = 1/2'
+                        },
+                        {
+                            question: 'What is tan 45°?',
+                            options: ['0', '1/2', '1', '√3'],
+                            correct: 2,
+                            explanation: 'tan 45° = 1'
+                        }
+                    ]
+                }
+            };
+            
+            const level = grade <= 5 ? 'elementary' : grade <= 8 ? 'middle' : 'high';
+            return pools[topic]?.[level] || pools['algebra'][level];
+        }
+
+        function generateQuestionVariation(baseQuestion, topic) {
+            // Generate variations of questions with different numbers
+            const variations = {
+                'algebra': [
+                    {
+                        question: 'Solve for x: x + 9 = 16',
+                        options: ['x = 5', 'x = 6', 'x = 7', 'x = 8'],
+                        correct: 2,
+                        explanation: 'x + 9 = 16 → x = 16 - 9 → x = 7'
+                    },
+                    {
+                        question: 'What is 4x when x = 3?',
+                        options: ['10', '12', '14', '16'],
+                        correct: 1,
+                        explanation: '4x = 4 × 3 = 12'
+                    }
+                ]
+            };
+            
+            const topicVariations = variations[topic] || variations['algebra'];
+            return topicVariations[Math.floor(Math.random() * topicVariations.length)];
+        }
+
+        function getGradeBasedTestTemplates(grade, syllabus) {
+            // Elementary grades (1-5)
+            if (grade <= 5) {
+                return {
+                    1: {
+                        title: 'Basic Addition ✨',
+                        description: 'Simple addition problems',
+                        duration: 20,
+                        topic: 'algebra',
+                        questionCount: 15,
+                        questions: [
+                            {
+                                question: 'What is 5 + 3?',
+                                options: ['6', '7', '8', '9'],
+                                correct: 2,
+                                explanation: '5 + 3 = 8'
+                            },
+                            {
+                                question: 'What is 12 + 7?',
+                                options: ['18', '19', '20', '21'],
+                                correct: 1,
+                                explanation: '12 + 7 = 19'
+                            },
+                            {
+                                question: 'What is 25 + 15?',
+                                options: ['35', '40', '45', '50'],
+                                correct: 1,
+                                explanation: '25 + 15 = 40'
+                            },
+                            {
+                                question: 'What is 8 + 6?',
+                                options: ['12', '13', '14', '15'],
+                                correct: 2,
+                                explanation: '8 + 6 = 14'
+                            },
+                            {
+                                question: 'What is 30 + 20?',
+                                options: ['40', '50', '60', '70'],
+                                correct: 1,
+                                explanation: '30 + 20 = 50'
+                            }
+                        ]
+                    },
+                    2: {
+                        title: 'Basic Subtraction 📐',
+                        description: 'Simple subtraction problems',
+                        duration: 15,
+                        questions: [
+                            {
+                                question: 'What is 10 - 4?',
+                                options: ['5', '6', '7', '8'],
+                                correct: 1,
+                                explanation: '10 - 4 = 6'
+                            },
+                            {
+                                question: 'What is 15 - 8?',
+                                options: ['6', '7', '8', '9'],
+                                correct: 1,
+                                explanation: '15 - 8 = 7'
+                            }
+                        ]
+                    }
+                };
+            }
+            // Middle grades (6-8)
+            else if (grade <= 8) {
+                return {
+                    1: {
+                        title: 'Basic Algebra ✨',
+                        description: 'Introduction to algebraic concepts',
+                        duration: 35,
+                        topic: 'algebra',
+                        questionCount: 20,
+                        questions: [
+                            {
+                                question: 'Solve for x: x + 5 = 12',
+                                options: ['x = 5', 'x = 6', 'x = 7', 'x = 8'],
+                                correct: 2,
+                                explanation: 'x + 5 = 12 → x = 12 - 5 → x = 7'
+                            },
+                            {
+                                question: 'What is 2x when x = 4?',
+                                options: ['6', '8', '10', '12'],
+                                correct: 1,
+                                explanation: '2x = 2 × 4 = 8'
+                            },
+                            {
+                                question: 'Simplify: 3x + 2x',
+                                options: ['5x', '6x', '3x', '2x'],
+                                correct: 0,
+                                explanation: '3x + 2x = (3 + 2)x = 5x'
+                            },
+                            {
+                                question: 'Solve: 2x = 10',
+                                options: ['x = 3', 'x = 4', 'x = 5', 'x = 6'],
+                                correct: 2,
+                                explanation: '2x = 10 → x = 10 ÷ 2 → x = 5'
+                            },
+                            {
+                                question: 'What is x² when x = 3?',
+                                options: ['6', '9', '12', '15'],
+                                correct: 1,
+                                explanation: 'x² = 3² = 3 × 3 = 9'
+                            }
+                        ]
+                    },
+                    2: {
+                        title: 'Basic Geometry 📐',
+                        description: 'Shapes and measurements',
+                        duration: 30,
+                        questions: [
+                            {
+                                question: 'What is the area of a rectangle with length 6 and width 4?',
+                                options: ['20', '22', '24', '26'],
+                                correct: 2,
+                                explanation: 'Area = length × width = 6 × 4 = 24'
+                            },
+                            {
+                                question: 'How many sides does a triangle have?',
+                                options: ['2', '3', '4', '5'],
+                                correct: 1,
+                                explanation: 'A triangle has 3 sides'
+                            }
+                        ]
+                    }
+                };
+            }
+            // High school grades (9-12)
+            else {
+                // CBSE specific content for grades 9-12
+                if (syllabus.toLowerCase() === 'cbse') {
+                    return {
+                        1: {
+                            title: 'CBSE Algebra ✨',
+                            description: 'CBSE curriculum algebra problems',
+                            duration: 60,
+                            topic: 'algebra',
+                            questionCount: 25,
+                            questions: [
+                                {
+                                    question: 'Solve the quadratic equation: x² - 5x + 6 = 0',
+                                    options: ['x = 2, 3', 'x = 1, 6', 'x = 2, 4', 'x = 1, 5'],
+                                    correct: 0,
+                                    explanation: 'Factoring: (x-2)(x-3) = 0, so x = 2 or x = 3'
+                                },
+                                {
+                                    question: 'Find the value of discriminant for x² + 4x + 4 = 0',
+                                    options: ['0', '4', '8', '16'],
+                                    correct: 0,
+                                    explanation: 'Discriminant = b² - 4ac = 16 - 16 = 0'
+                                },
+                                {
+                                    question: 'Simplify: (a + b)² - (a - b)²',
+                                    options: ['2ab', '4ab', '2a²', '2b²'],
+                                    correct: 1,
+                                    explanation: '(a+b)² - (a-b)² = a² + 2ab + b² - (a² - 2ab + b²) = 4ab'
+                                },
+                                {
+                                    question: 'If the sum of roots of ax² + bx + c = 0 is -b/a, find the product of roots',
+                                    options: ['c/a', '-c/a', 'b/a', '-b/a'],
+                                    correct: 0,
+                                    explanation: 'For ax² + bx + c = 0, product of roots = c/a'
+                                },
+                                {
+                                    question: 'Solve: 2x + 3y = 12 and x - y = 1 (find x)',
+                                    options: ['x = 3', 'x = 4', 'x = 5', 'x = 6'],
+                                    correct: 0,
+                                    explanation: 'From x - y = 1, x = y + 1. Substituting: 2(y+1) + 3y = 12 → y = 2, x = 3'
+                                }
+                            ]
+                        },
+                        2: {
+                            title: 'CBSE Geometry 📐',
+                            description: 'CBSE geometry and mensuration',
+                            duration: 50,
+                            questions: [
+                                {
+                                    question: 'Find the area of a circle with radius 7 cm (use π = 22/7)',
+                                    options: ['154 cm²', '144 cm²', '164 cm²', '174 cm²'],
+                                    correct: 0,
+                                    explanation: 'Area = πr² = (22/7) × 7² = 22 × 7 = 154 cm²'
+                                },
+                                {
+                                    question: 'In a right triangle, if one angle is 30°, what is the other acute angle?',
+                                    options: ['45°', '50°', '60°', '70°'],
+                                    correct: 2,
+                                    explanation: 'Sum of angles = 180°, so 90° + 30° + x = 180° → x = 60°'
+                                },
+                                {
+                                    question: 'The diagonal of a square with side 5 cm is:',
+                                    options: ['5√2 cm', '10 cm', '5√3 cm', '25 cm'],
+                                    correct: 0,
+                                    explanation: 'Diagonal = side × √2 = 5√2 cm'
+                                }
+                            ]
+                        },
+                        3: {
+                            title: 'CBSE Trigonometry 🧮',
+                            description: 'CBSE trigonometry concepts',
+                            duration: 40,
+                            questions: [
+                                {
+                                    question: 'What is the value of sin 30°?',
+                                    options: ['1/2', '√3/2', '1/√2', '√2/2'],
+                                    correct: 0,
+                                    explanation: 'sin 30° = 1/2'
+                                },
+                                {
+                                    question: 'If tan θ = 1, then θ = ?',
+                                    options: ['30°', '45°', '60°', '90°'],
+                                    correct: 1,
+                                    explanation: 'tan 45° = 1'
+                                }
+                            ]
+                        }
+                    };
+                }
+                // State board content
+                else if (syllabus.toLowerCase() === 'state') {
+                    return {
+                        1: {
+                            title: 'State Board Algebra ✨',
+                            description: 'State curriculum algebra',
+                            duration: 40,
+                            questions: [
+                                {
+                                    question: 'Solve: 3x + 7 = 22',
+                                    options: ['x = 4', 'x = 5', 'x = 6', 'x = 7'],
+                                    correct: 1,
+                                    explanation: '3x + 7 = 22 → 3x = 15 → x = 5'
+                                },
+                                {
+                                    question: 'Factor: x² + 7x + 12',
+                                    options: ['(x+3)(x+4)', '(x+2)(x+6)', '(x+1)(x+12)', '(x+3)(x+5)'],
+                                    correct: 0,
+                                    explanation: 'We need numbers that multiply to 12 and add to 7: 3 and 4'
+                                }
+                            ]
+                        }
+                    };
+                }
+                // Default high school content
+                else {
+                    return {
+                        1: {
+                            title: 'Advanced Algebra ✨',
+                            description: 'High school algebra concepts',
+                            duration: 45,
+                            questions: [
+                                {
+                                    question: 'Solve for x: 2x + 5 = 13',
+                                    options: ['x = 4', 'x = 6', 'x = 8', 'x = 9'],
+                                    correct: 0,
+                                    explanation: '2x + 5 = 13 → 2x = 8 → x = 4'
+                                },
+                                {
+                                    question: 'Factor: x² + 5x + 6',
+                                    options: ['(x + 2)(x + 3)', '(x + 1)(x + 6)', '(x + 4)(x + 2)', '(x + 5)(x + 1)'],
+                                    correct: 0,
+                                    explanation: 'We need numbers that multiply to 6 and add to 5: 2 and 3'
+                                }
+                            ]
+                        }
+                    };
+                }
+            }
+        }
+
+        function startTestTimer() {
+            const timerDisplay = document.getElementById('timerDisplay');
+            const timerCircle = document.getElementById('timerCircle');
+            
+            testTimer = setInterval(() => {
+                testTimeRemaining--;
+                
+                const minutes = Math.floor(testTimeRemaining / 60);
+                const seconds = testTimeRemaining % 60;
+                timerDisplay.textContent = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+                
+                // Update circular progress
+                const totalTime = currentTestData.duration * 60;
+                const progress = ((totalTime - testTimeRemaining) / totalTime) * 360;
+                timerCircle.style.background = `conic-gradient(#ef4444 ${progress}deg, #e5e7eb ${progress}deg)`;
+                
+                if (testTimeRemaining <= 0) {
+                    clearInterval(testTimer);
+                    submitTest();
+                }
+            }, 1000);
+        }
+
+        function loadQuestion(index) {
+            const question = currentTestData.questions[index];
+            const container = document.getElementById('questionContainer');
+            
+            container.innerHTML = `
+                <div class="mb-6">
+                    <h3 class="text-xl font-semibold text-gray-800 mb-4">Question ${index + 1}</h3>
+                    <p class="text-gray-700 text-lg mb-6">${question.question}</p>
+                    <div class="space-y-3">
+                        ${question.options.map((option, i) => `
+                            <label class="flex items-center p-4 bg-gray-50 rounded-xl hover:bg-purple-50 cursor-pointer transition-all border-2 border-transparent hover:border-purple-200">
+                                <input type="radio" name="answer" value="${i}" class="mr-4 text-purple-600" ${userAnswers[index] === i ? 'checked' : ''}>
+                                <span class="text-gray-800">${option}</span>
+                            </label>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
+            
+            // Update progress
+            const progress = ((index + 1) / currentTestData.questions.length) * 100;
+            document.getElementById('testProgressBar').style.width = progress + '%';
+            document.getElementById('questionProgress').textContent = `${index + 1} of ${currentTestData.questions.length}`;
+            
+            // Update navigation buttons
+            document.getElementById('prevBtn').disabled = index === 0;
+            document.getElementById('nextBtn').style.display = index === currentTestData.questions.length - 1 ? 'none' : 'block';
+            document.getElementById('submitBtn').style.display = index === currentTestData.questions.length - 1 ? 'block' : 'none';
+            
+            // Add event listeners for answer selection
+            document.querySelectorAll('input[name="answer"]').forEach(input => {
+                input.addEventListener('change', (e) => {
+                    userAnswers[index] = parseInt(e.target.value);
+                });
+            });
+        }
+
+        function nextQuestion() {
+            if (currentQuestionIndex < currentTestData.questions.length - 1) {
+                currentQuestionIndex++;
+                loadQuestion(currentQuestionIndex);
+            }
+        }
+
+        function previousQuestion() {
+            if (currentQuestionIndex > 0) {
+                currentQuestionIndex--;
+                loadQuestion(currentQuestionIndex);
+            }
+        }
+
+        function submitTest() {
+            clearInterval(testTimer);
+            
+            // Calculate score
+            let correctAnswers = 0;
+            currentTestData.questions.forEach((question, index) => {
+                if (userAnswers[index] === question.correct) {
+                    correctAnswers++;
+                }
+            });
+            
+            const score = Math.round((correctAnswers / currentTestData.questions.length) * 100);
+            const xpEarned = Math.round((score / 100) * currentTestData.questions.length * 10);
+            
+            // Show results
+            showTestResults(score, correctAnswers, currentTestData.questions.length, xpEarned);
+        }
+
+        function showTestResults(score, correct, total, xpEarned) {
+            const attempted = userAnswers.filter(answer => answer !== null).length;
+            const unattempted = total - attempted;
+            
+            const container = document.getElementById('questionContainer');
+            container.innerHTML = `
+                <div class="text-center py-8">
+                    <div class="text-6xl mb-4">${score >= 80 ? '🎉' : score >= 60 ? '👍' : '📚'}</div>
+                    <h2 class="text-3xl font-bold text-gray-800 mb-4">Test Complete! ✨</h2>
+                    <div class="bg-gradient-to-r from-purple-50 to-blue-50 rounded-2xl p-8 mb-6">
+                        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                            <div class="text-center">
+                                <div class="text-3xl font-bold text-purple-600">${score}%</div>
+                                <div class="text-gray-600">Score</div>
+                            </div>
+                            <div class="text-center">
+                                <div class="text-3xl font-bold text-green-600">${correct}</div>
+                                <div class="text-gray-600">Correct</div>
+                            </div>
+                            <div class="text-center">
+                                <div class="text-3xl font-bold text-red-600">${attempted - correct}</div>
+                                <div class="text-gray-600">Incorrect</div>
+                            </div>
+                            <div class="text-center">
+                                <div class="text-3xl font-bold text-gray-600">${unattempted}</div>
+                                <div class="text-gray-600">Unattempted</div>
+                            </div>
+                        </div>
+                        <div class="mt-6 text-center">
+                            <div class="text-2xl font-bold text-blue-600">+${xpEarned} XP Earned</div>
+                        </div>
+                    </div>
+                    
+                    <!-- AI Performance Analysis -->
+                    <div class="bg-gradient-to-r from-blue-50 to-green-50 rounded-2xl p-6 mb-6 text-left">
+                        <h3 class="text-xl font-bold text-gray-800 mb-4 flex items-center">
+                            <span class="mr-2">🤖</span> AI Performance Analysis
+                        </h3>
+                        <div id="aiAnalysis" class="text-gray-700">
+                            ${generateAIAnalysis(score, correct, total, attempted, currentTestData.topic)}
+                        </div>
+                    </div>
+                    
+                    <div class="space-y-3">
+                        <button onclick="closeTest()" class="bg-gradient-to-r from-purple-600 to-blue-600 text-white px-8 py-3 rounded-xl hover:from-purple-700 hover:to-blue-700 font-medium shadow-lg transition-all mr-4">
+                            ✨ Continue Learning
+                        </button>
+                        <button onclick="reviewAnswers()" class="bg-gradient-to-r from-green-600 to-teal-600 text-white px-8 py-3 rounded-xl hover:from-green-700 hover:to-teal-700 font-medium shadow-lg transition-all">
+                            📚 Review Solutions
+                        </button>
+                        <button onclick="retakeTest()" class="bg-gradient-to-r from-orange-600 to-red-600 text-white px-8 py-3 rounded-xl hover:from-orange-700 hover:to-red-700 font-medium shadow-lg transition-all">
+                            🔄 Retake Test
+                        </button>
+                    </div>
+                </div>
+            `;
+            
+            // Update user stats and store test performance
+            updateUserStats(score, xpEarned);
+            storeTestPerformance(currentTestData.topic, score, correct, total, attempted);
+            showNotification(`🎉 Test completed! You earned ${xpEarned} XP!`, 'success');
+        }
+
+        function generateAIAnalysis(score, correct, total, attempted, topic) {
+            let analysis = '';
+            
+            // Performance assessment
+            if (score >= 90) {
+                analysis += `<p class="mb-3">🌟 <strong>Excellent Performance!</strong> You've mastered ${topic} concepts exceptionally well. You're ready for more advanced challenges!</p>`;
+            } else if (score >= 75) {
+                analysis += `<p class="mb-3">👍 <strong>Good Work!</strong> You have a solid understanding of ${topic}. With a bit more practice, you'll achieve mastery!</p>`;
+            } else if (score >= 60) {
+                analysis += `<p class="mb-3">📚 <strong>Keep Learning!</strong> You're making progress in ${topic}. Focus on the areas where you made mistakes to improve further.</p>`;
+            } else {
+                analysis += `<p class="mb-3">💪 <strong>Don't Give Up!</strong> ${topic} can be challenging, but with consistent practice, you'll see improvement. Let's work on the fundamentals!</p>`;
+            }
+            
+            // Attempt rate analysis
+            const attemptRate = (attempted / total) * 100;
+            if (attemptRate < 80) {
+                analysis += `<p class="mb-3">⏰ <strong>Time Management:</strong> You left ${total - attempted} questions unattempted. Try to pace yourself better and attempt all questions, even if you're unsure.</p>`;
+            }
+            
+            // Topic-specific recommendations
+            analysis += getTopicRecommendations(topic, score);
+            
+            // Strengths and areas for improvement
+            analysis += getStrengthsAndWeaknesses(score, correct, total, topic);
+            
+            return analysis;
+        }
+
+        function getTopicRecommendations(topic, score) {
+            const recommendations = {
+                'algebra': {
+                    high: 'Consider exploring advanced algebra topics like polynomial functions, logarithms, and complex numbers.',
+                    medium: 'Focus on practicing more quadratic equations, factoring, and solving systems of equations.',
+                    low: 'Start with basic linear equations, simplifying expressions, and understanding variables.'
+                },
+                'geometry': {
+                    high: 'You can now tackle advanced geometry like coordinate geometry, trigonometry, and 3D shapes.',
+                    medium: 'Practice more problems on area, perimeter, and angle relationships in triangles.',
+                    low: 'Focus on basic shapes, their properties, and simple area/perimeter calculations.'
+                },
+                'trigonometry': {
+                    high: 'Explore advanced trigonometry including inverse functions, identities, and applications.',
+                    medium: 'Practice more problems with trigonometric ratios and solving trigonometric equations.',
+                    low: 'Start with basic trigonometric ratios (sin, cos, tan) and their applications in right triangles.'
+                }
+            };
+            
+            const level = score >= 80 ? 'high' : score >= 60 ? 'medium' : 'low';
+            const recommendation = recommendations[topic]?.[level] || recommendations['algebra'][level];
+            
+            return `<p class="mb-3">🎯 <strong>Next Steps:</strong> ${recommendation}</p>`;
+        }
+
+        function getStrengthsAndWeaknesses(score, correct, total, topic) {
+            let analysis = '<div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">';
+            
+            // Strengths
+            analysis += '<div class="bg-green-50 p-4 rounded-xl border border-green-200">';
+            analysis += '<h4 class="font-semibold text-green-800 mb-2">💪 Your Strengths:</h4>';
+            if (score >= 75) {
+                analysis += `<p class="text-green-700 text-sm">• Strong grasp of ${topic} fundamentals</p>`;
+                analysis += '<p class="text-green-700 text-sm">• Good problem-solving approach</p>';
+            } else {
+                analysis += '<p class="text-green-700 text-sm">• Willingness to learn and improve</p>';
+                analysis += '<p class="text-green-700 text-sm">• Attempting challenging problems</p>';
+            }
+            analysis += '</div>';
+            
+            // Areas for improvement
+            analysis += '<div class="bg-orange-50 p-4 rounded-xl border border-orange-200">';
+            analysis += '<h4 class="font-semibold text-orange-800 mb-2">🎯 Focus Areas:</h4>';
+            if (score < 60) {
+                analysis += `<p class="text-orange-700 text-sm">• Review ${topic} basics and fundamentals</p>`;
+                analysis += '<p class="text-orange-700 text-sm">• Practice more problems daily</p>';
+            } else {
+                analysis += '<p class="text-orange-700 text-sm">• Work on accuracy and speed</p>';
+                analysis += '<p class="text-orange-700 text-sm">• Attempt more challenging problems</p>';
+            }
+            analysis += '</div>';
+            
+            analysis += '</div>';
+            return analysis;
+        }
+
+        function storeTestPerformance(topic, score, correct, total, attempted) {
+            // Store in local user data first
+            if (!userData.testHistory) {
+                userData.testHistory = {};
+            }
+            
+            if (!userData.testHistory[topic]) {
+                userData.testHistory[topic] = [];
+            }
+            
+            const testResult = {
+                date: new Date().toISOString(),
+                score: score,
+                correct: correct,
+                total: total,
+                attempted: attempted
+            };
+            
+            userData.testHistory[topic].push(testResult);
+            
+            // Keep only last 10 attempts per topic
+            if (userData.testHistory[topic].length > 10) {
+                userData.testHistory[topic] = userData.testHistory[topic].slice(-10);
+            }
+            
+            // Save to localStorage
+            localStorage.setItem('user_' + userData.username, JSON.stringify(userData));
+            
+            // Save to database
+            performDatabaseOperation('saveTestResults', {
+                username: userData.username,
+                topic: topic,
+                score: score,
+                correct: correct,
+                total: total,
+                attempted: attempted
+            }).catch(error => {
+                console.error('Failed to save test results to database:', error);
+                showNotification('⚠️ Test results saved locally only', 'warning');
+            });
+        }
+
+        function retakeTest() {
+            // Reset test state and start again with new questions
+            currentQuestionIndex = 0;
+            userAnswers = new Array(currentTestData.questions.length).fill(null);
+            
+            // Generate new questions for the same test
+            const newTestData = generateTestQuestions(currentTestData.id || 1);
+            currentTestData = newTestData;
+            userAnswers = new Array(currentTestData.questions.length).fill(null);
+            
+            // Restart timer
+            testTimeRemaining = currentTestData.duration * 60;
+            startTestTimer();
+            
+            // Load first question
+            loadQuestion(0);
+            
+            showNotification('🔄 Test restarted with new questions! Good luck!', 'info');
+        }
+
+        function updateUserStats(xpGained, testCompleted = true, accuracy = null) {
+    // Update local user data
+    userData.xp += xpGained;
+    
+    // Level up if XP threshold reached
+    const xpThreshold = userData.level * 100;
+    if (userData.xp >= xpThreshold) {
+        userData.level += 1;
+        showNotification('🎉 Level Up! You are now level ' + userData.level, 'success');
+    }
+    
+    if (testCompleted) {
+        userData.testsCompleted += 1;
+    }
+    
+    if (accuracy !== null) {
+        if (!userData.accuracyRate) {
+            userData.accuracyRate = accuracy;
+        } else {
+            // Rolling average
+            userData.accuracyRate = (userData.accuracyRate * (userData.testsCompleted - 1) + accuracy) / userData.testsCompleted;
+        }
+    }
+    
+    // Update streak (simplified)
+    userData.streak += 1;
+    
+    // Save to localStorage
+    localStorage.setItem('user_' + userData.username, JSON.stringify(userData));
+    
+    // Update UI
+    updateUserXP();
+    
+    // Save to database
+    performDatabaseOperation('updateUser', {
+        username: userData.username,
+        xp: userData.xp,
+        level: userData.level,
+        testsCompleted: userData.testsCompleted,
+        accuracyRate: userData.accuracyRate,
+        streak: userData.streak
+    }).catch(error => {
+        console.error('Failed to update user stats in database:', error);
+        showNotification('⚠️ User stats updated locally only', 'warning');
+    });
+}
+
+        function reviewAnswers() {
+            const container = document.getElementById('questionContainer');
+            let reviewHTML = '<div class="space-y-6">';
+            
+            currentTestData.questions.forEach((question, index) => {
+                const userAnswer = userAnswers[index];
+                const isCorrect = userAnswer === question.correct;
+                
+                reviewHTML += `
+                    <div class="bg-white rounded-xl p-6 border-2 ${isCorrect ? 'border-green-200' : 'border-red-200'}">
+                        <div class="flex items-center mb-3">
+                            <span class="text-2xl mr-3">${isCorrect ? '✅' : '❌'}</span>
+                            <h4 class="font-semibold text-gray-800">Question ${index + 1}</h4>
+                        </div>
+                        <p class="text-gray-700 mb-4">${question.question}</p>
+                        <div class="space-y-2 mb-4">
+                            ${question.options.map((option, i) => `
+                                <div class="p-3 rounded-lg ${
+                                    i === question.correct ? 'bg-green-100 border border-green-300' :
+                                    i === userAnswer && i !== question.correct ? 'bg-red-100 border border-red-300' :
+                                    'bg-gray-50'
+                                }">
+                                    ${option} ${i === question.correct ? '✓' : i === userAnswer && i !== question.correct ? '✗' : ''}
+                                </div>
+                            `).join('')}
+                        </div>
+                        <div class="bg-blue-50 p-4 rounded-lg">
+                            <p class="text-sm text-blue-800"><strong>Explanation:</strong> ${question.explanation}</p>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            reviewHTML += '</div>';
+            container.innerHTML = reviewHTML;
+        }
+
+        function closeTest() {
+            document.getElementById('testInterface').classList.add('hidden');
+            clearInterval(testTimer);
+            currentTestData = null;
+            currentQuestionIndex = 0;
+            userAnswers = [];
+        }
+
+        function updateUserXP(xpGained) {
+            const currentXP = parseInt(document.getElementById('userXP').textContent.replace(' XP', ''));
+            const newXP = currentXP + xpGained;
+            document.getElementById('userXP').textContent = newXP + ' XP';
+            document.getElementById('userXPDisplay').textContent = newXP;
+            
+            // Update XP bar
+            const xpBar = document.getElementById('xpBar');
+            const progress = Math.min((newXP % 1000) / 1000, 1);
+            xpBar.style.width = (progress * 100) + '%';
+            
+            // Check for level up
+            const newLevel = Math.floor(newXP / 1000) + 1;
+            const currentLevel = parseInt(document.getElementById('userLevel').textContent);
+            if (newLevel > currentLevel) {
+                document.getElementById('userLevel').textContent = newLevel;
+                showNotification(`🎉 Level Up! You're now level ${newLevel}!`, 'success');
+            }
+        }
+
+        // Dark mode toggle
+        function toggleDarkMode() {
+            isDarkMode = !isDarkMode;
+            document.body.classList.toggle('dark', isDarkMode);
+            document.getElementById('themeIcon').textContent = isDarkMode ? '☀️' : '🌙';
+            showNotification(isDarkMode ? '🌙 Dark mode activated!' : '☀️ Light mode activated!', 'info');
+        }
+
+        // Scheduler functions
+        function addScheduleItem(event) {
+            event.preventDefault();
+            const subject = document.getElementById('scheduleSubject').value;
+            const date = document.getElementById('scheduleDate').value;
+            const time = document.getElementById('scheduleTime').value;
+            
+            const newItem = {
+                id: Date.now(),
+                subject: subject,
+                date: date,
+                time: time,
+                completed: false
+            };
+            
+            scheduleItems.push(newItem);
+            renderScheduleList();
+            showNotification('✨ Study session scheduled successfully!', 'success');
+            
+            // Clear form
+            document.getElementById('scheduleSubject').value = '';
+            document.getElementById('scheduleDate').value = '';
+            document.getElementById('scheduleTime').value = '';
+        }
+
+        function renderScheduleList() {
+            const container = document.getElementById('scheduleList');
+            if (scheduleItems.length === 0) {
+                container.innerHTML = '<p class="text-gray-500 text-center py-8">No study sessions scheduled yet. Add one above! 📅</p>';
+                return;
+            }
+            
+            container.innerHTML = scheduleItems.map(item => `
+                <div class="bg-gradient-to-r from-yellow-50 to-orange-50 p-4 rounded-xl border border-yellow-200 flex items-center justify-between">
+                    <div class="flex items-center space-x-4">
+                        <div class="w-12 h-12 bg-gradient-to-r from-yellow-400 to-orange-500 rounded-full flex items-center justify-center text-white font-bold">
+                            📚
+                        </div>
+                        <div>
+                            <h4 class="font-semibold text-gray-800">${item.subject}</h4>
+                            <p class="text-sm text-gray-600">${new Date(item.date).toLocaleDateString()} at ${item.time}</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <button onclick="toggleScheduleComplete(${item.id})" class="px-4 py-2 rounded-lg ${item.completed ? 'bg-green-500 text-white' : 'bg-gray-200 text-gray-700'} hover:opacity-80 transition-all">
+                            ${item.completed ? '✓ Done' : 'Mark Done'}
+                        </button>
+                        <button onclick="deleteScheduleItem(${item.id})" class="px-3 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-all">
+                            🗑️
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function toggleScheduleComplete(id) {
+            const item = scheduleItems.find(item => item.id === id);
+            if (item) {
+                item.completed = !item.completed;
+                renderScheduleList();
+                showNotification(item.completed ? '✅ Study session completed!' : '📝 Study session marked as pending', 'success');
+            }
+        }
+
+        function deleteScheduleItem(id) {
+            scheduleItems = scheduleItems.filter(item => item.id !== id);
+            renderScheduleList();
+            showNotification('🗑️ Study session deleted', 'info');
+        }
+
+        // Study Groups functions
+        function createStudyGroup(event) {
+            event.preventDefault();
+            const name = document.getElementById('groupName').value;
+            const subject = document.getElementById('groupSubject').value;
+            
+            const newGroup = {
+                id: Date.now(),
+                name: name,
+                subject: subject,
+                members: 1,
+                description: `Study group for ${subject}`,
+                creator: userData.name || 'You'
+            };
+            
+            studyGroups.push(newGroup);
+            renderStudyGroups();
+            showNotification('✨ Study group created successfully!', 'success');
+            
+            // Clear form
+            document.getElementById('groupName').value = '';
+            document.getElementById('groupSubject').value = '';
+        }
+
+        function renderStudyGroups() {
+            const container = document.getElementById('studyGroupsList');
+            if (studyGroups.length === 0) {
+                container.innerHTML = '<div class="col-span-full text-center py-8 text-gray-500">No study groups yet. Create one above! 👥</div>';
+                return;
+            }
+            
+            container.innerHTML = studyGroups.map(group => `
+                <div class="bg-white rounded-2xl shadow-xl p-6 border border-pink-100 interactive-element">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="bg-gradient-to-r from-pink-400 to-purple-500 p-3 rounded-full shadow-lg">
+                            <span class="text-white text-xl">👥</span>
+                        </div>
+                        <span class="bg-gradient-to-r from-pink-100 to-purple-100 text-pink-800 px-3 py-1 rounded-full text-xs font-semibold">${group.subject}</span>
+                    </div>
+                    <h3 class="text-xl font-semibold text-gray-800 mb-2">${group.name}</h3>
+                    <p class="text-gray-600 text-sm mb-4">${group.description}</p>
+                    <div class="flex items-center justify-between">
+                        <span class="text-sm text-gray-500">${group.members} members</span>
+                        <button onclick="joinStudyGroup(${group.id})" class="bg-gradient-to-r from-pink-600 to-purple-600 text-white px-4 py-2 rounded-xl hover:from-pink-700 hover:to-purple-700 font-medium transition-all">
+                            Join Group ✨
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function joinStudyGroup(id) {
+            const group = studyGroups.find(g => g.id === id);
+            if (group) {
+                group.members++;
+                renderStudyGroups();
+                showNotification(`🎉 You joined "${group.name}"! Welcome to the group!`, 'success');
+            }
+        }
+
+        // Notes functions
+        function addNote(event) {
+            event.preventDefault();
+            const title = document.getElementById('noteTitle').value;
+            const subject = document.getElementById('noteSubject').value;
+            const content = document.getElementById('noteContent').value;
+            
+            const newNote = {
+                id: Date.now(),
+                title: title,
+                subject: subject,
+                content: content,
+                date: new Date().toISOString().split('T')[0]
+            };
+            
+            notes.push(newNote);
+            renderNotes();
+            showNotification('✨ Note saved successfully!', 'success');
+            
+            // Clear form
+            document.getElementById('noteTitle').value = '';
+            document.getElementById('noteSubject').value = '';
+            document.getElementById('noteContent').value = '';
+        }
+
+        function renderNotes() {
+            const container = document.getElementById('notesList');
+            if (notes.length === 0) {
+                container.innerHTML = '<div class="col-span-full text-center py-8 text-gray-500">No notes yet. Create one above! 📝</div>';
+                return;
+            }
+            
+            container.innerHTML = notes.map(note => `
+                <div class="bg-white rounded-2xl shadow-xl p-6 border border-green-100 interactive-element">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="bg-gradient-to-r from-green-400 to-blue-500 p-3 rounded-full shadow-lg">
+                            <span class="text-white text-xl">📝</span>
+                        </div>
+                        <span class="bg-gradient-to-r from-green-100 to-blue-100 text-green-800 px-3 py-1 rounded-full text-xs font-semibold">${note.subject}</span>
+                    </div>
+                    <h3 class="text-xl font-semibold text-gray-800 mb-2">${note.title}</h3>
+                    <p class="text-gray-600 text-sm mb-4 line-clamp-3">${note.content}</p>
+                    <div class="flex items-center justify-between">
+                        <span class="text-sm text-gray-500">${new Date(note.date).toLocaleDateString()}</span>
+                        <div class="space-x-2">
+                            <button onclick="editNote(${note.id})" class="bg-gradient-to-r from-blue-500 to-purple-500 text-white px-3 py-1 rounded-lg hover:from-blue-600 hover:to-purple-600 text-sm transition-all">
+                                Edit
+                            </button>
+                            <button onclick="deleteNote(${note.id})" class="bg-gradient-to-r from-red-500 to-pink-500 text-white px-3 py-1 rounded-lg hover:from-red-600 hover:to-pink-600 text-sm transition-all">
+                                Delete
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function editNote(id) {
+            const note = notes.find(n => n.id === id);
+            if (note) {
+                document.getElementById('noteTitle').value = note.title;
+                document.getElementById('noteSubject').value = note.subject;
+                document.getElementById('noteContent').value = note.content;
+                deleteNote(id);
+                showNotification('📝 Note loaded for editing', 'info');
+            }
+        }
+
+        function deleteNote(id) {
+            notes = notes.filter(n => n.id !== id);
+            renderNotes();
+            showNotification('🗑️ Note deleted', 'info');
+        }
+
+        // Resources functions
+        function initializeResources() {
+            // Initialize Olympiads
+            const olympiads = [
+                { name: 'International Mathematical Olympiad', deadline: '2024-07-15', level: 'International', prize: '$10,000' },
+                { name: 'American Mathematics Competitions', deadline: '2024-02-15', level: 'National', prize: '$5,000' },
+                { name: 'MATHCOUNTS Competition', deadline: '2024-03-01', level: 'National', prize: '$2,500' },
+                { name: 'Putnam Mathematical Competition', deadline: '2024-12-02', level: 'University', prize: '$25,000' },
+                { name: 'USAMO (USA Mathematical Olympiad)', deadline: '2024-04-28', level: 'National', prize: '$20,000' },
+                { name: 'International Physics Olympiad', deadline: '2024-06-10', level: 'International', prize: '$15,000' },
+                { name: 'European Girls Mathematical Olympiad', deadline: '2024-04-15', level: 'International', prize: '$8,000' },
+                { name: 'Asian Pacific Mathematical Olympiad', deadline: '2024-03-20', level: 'Regional', prize: '$12,000' }
+            ];
+            
+            const olympiadsList = document.getElementById('olympiadsList');
+            olympiadsList.innerHTML = olympiads.map(olympiad => `
+                <div class="bg-gradient-to-br from-blue-50 to-purple-50 p-6 rounded-2xl border border-blue-200 interactive-element">
+                    <div class="flex items-center mb-4">
+                        <span class="text-3xl mr-3">🏆</span>
+                        <div>
+                            <h4 class="font-semibold text-gray-800">${olympiad.name}</h4>
+                            <p class="text-sm text-gray-600">${olympiad.level} Level</p>
+                        </div>
+                    </div>
+                    <div class="space-y-2 mb-4">
+                        <p class="text-sm text-gray-600">📅 Deadline: ${new Date(olympiad.deadline).toLocaleDateString()}</p>
+                        <p class="text-sm text-gray-600">💰 Prize: ${olympiad.prize}</p>
+                    </div>
+                    <button class="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white py-2 rounded-xl hover:from-blue-700 hover:to-purple-700 font-medium transition-all">
+                        Register Now ✨
+                    </button>
+                </div>
+            `).join('');
+            
+            // Initialize Important Topics
+            const topics = [
+                'Quadratic Equations', 'Trigonometry', 'Calculus Basics', 'Geometry Proofs',
+                'Statistics', 'Probability', 'Linear Algebra', 'Number Theory',
+                'Complex Numbers', 'Differential Equations', 'Vector Calculus', 'Graph Theory',
+                'Combinatorics', 'Set Theory', 'Logic & Proofs', 'Sequences & Series',
+                'Matrices & Determinants', 'Coordinate Geometry', 'Limits & Continuity', 'Integration Techniques'
+            ];
+            
+            const topicsList = document.getElementById('importantTopicsList');
+            topicsList.innerHTML = topics.map(topic => `
+                <div class="bg-gradient-to-br from-purple-50 to-pink-50 p-4 rounded-xl border border-purple-200 text-center interactive-element">
+                    <span class="text-2xl mb-2 block">⭐</span>
+                    <h4 class="font-semibold text-gray-800 text-sm">${topic}</h4>
+                </div>
+            `).join('');
+            
+            // Initialize Previous Papers
+            const papers = [
+                { year: '2023', exam: 'CBSE Board', subject: 'Mathematics' },
+                { year: '2022', exam: 'JEE Main', subject: 'Mathematics' },
+                { year: '2023', exam: 'NEET', subject: 'Physics' },
+                { year: '2023', exam: 'JEE Advanced', subject: 'Mathematics' },
+                { year: '2022', exam: 'CBSE Board', subject: 'Mathematics' },
+                { year: '2023', exam: 'ICSE Board', subject: 'Mathematics' },
+                { year: '2022', exam: 'SAT Math', subject: 'Mathematics' },
+                { year: '2023', exam: 'AP Calculus', subject: 'Mathematics' },
+                { year: '2022', exam: 'IB Mathematics', subject: 'Mathematics' },
+                { year: '2023', exam: 'KVPY', subject: 'Mathematics' },
+                { year: '2022', exam: 'NTSE', subject: 'Mathematics' },
+                { year: '2023', exam: 'Olympiad', subject: 'Mathematics' }
+            ];
+            
+            const papersList = document.getElementById('previousPapersList');
+            papersList.innerHTML = papers.map(paper => `
+                <div class="bg-gradient-to-br from-green-50 to-blue-50 p-6 rounded-2xl border border-green-200 interactive-element">
+                    <div class="flex items-center mb-4">
+                        <span class="text-3xl mr-3">📄</span>
+                        <div>
+                            <h4 class="font-semibold text-gray-800">${paper.exam} ${paper.year}</h4>
+                            <p class="text-sm text-gray-600">${paper.subject}</p>
+                        </div>
+                    </div>
+                    <button onclick="downloadPaper('${paper.exam}_${paper.year}_${paper.subject}')" class="w-full bg-gradient-to-r from-green-600 to-blue-600 text-white py-2 rounded-xl hover:from-green-700 hover:to-blue-700 font-medium transition-all">
+                        Download PDF 📥
+                    </button>
+                </div>
+            `).join('');
+            
+            // Initialize Chapter Resources
+            const chapters = [
+                { name: 'Algebra Fundamentals', topics: ['Linear Equations', 'Quadratic Equations', 'Polynomials', 'Factoring', 'Inequalities'] },
+                { name: 'Geometry Basics', topics: ['Triangles', 'Circles', 'Coordinate Geometry', 'Area & Perimeter', 'Similarity & Congruence'] },
+                { name: 'Calculus Introduction', topics: ['Limits', 'Derivatives', 'Integration', 'Applications', 'Optimization'] },
+                { name: 'Trigonometry', topics: ['Basic Ratios', 'Identities', 'Equations', 'Graphs', 'Applications'] },
+                { name: 'Statistics & Probability', topics: ['Data Analysis', 'Probability Rules', 'Distributions', 'Hypothesis Testing', 'Regression'] },
+                { name: 'Linear Algebra', topics: ['Matrices', 'Determinants', 'Vector Spaces', 'Eigenvalues', 'Linear Transformations'] },
+                { name: 'Number Theory', topics: ['Prime Numbers', 'Divisibility', 'Modular Arithmetic', 'GCD & LCM', 'Diophantine Equations'] },
+                { name: 'Complex Numbers', topics: ['Basic Operations', 'Polar Form', 'De Moivre\'s Theorem', 'Roots', 'Applications'] }
+            ];
+            
+            const chaptersList = document.getElementById('chapterResourcesList');
+            chaptersList.innerHTML = chapters.map(chapter => `
+                <div class="bg-gradient-to-r from-pink-50 to-purple-50 p-6 rounded-2xl border border-pink-200">
+                    <h4 class="text-xl font-semibold text-gray-800 mb-4 flex items-center">
+                        <span class="mr-2">📖</span> ${chapter.name}
+                    </h4>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                        ${chapter.topics.map(topic => `
+                            <button onclick="downloadChapter('${chapter.name}', '${topic}')" class="bg-white p-3 rounded-xl border border-pink-200 hover:border-pink-300 text-sm text-gray-700 hover:text-pink-700 transition-all interactive-element">
+                                📥 ${topic}
+                            </button>
+                        `).join('')}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function downloadPaper(filename) {
+            showNotification(`📥 Downloading ${filename.replace(/_/g, ' ')}...`, 'info');
+            // Simulate download
+            setTimeout(() => {
+                showNotification('✅ Download completed!', 'success');
+            }, 2000);
+        }
+
+        function downloadChapter(chapter, topic) {
+            showNotification(`📥 Downloading ${topic} from ${chapter}...`, 'info');
+            // Simulate download
+            setTimeout(() => {
+                showNotification('✅ Download completed!', 'success');
+            }, 1500);
+        }
+
+        // Initialize section-specific content
+        function initializeSectionContent(sectionName) {
+            if (sectionName === 'scheduler') {
+                renderScheduleList();
+            } else if (sectionName === 'studyGroups') {
+                renderStudyGroups();
+            } else if (sectionName === 'notes') {
+                renderNotes();
+            } else if (sectionName === 'resources') {
+                initializeResources();
+            } else if (sectionName === 'mockTests') {
+                initializeMockTests();
+            } else if (sectionName === 'aiChat') {
+                updateAISuggestions();
+            }
+        }
+
+        function updateAISuggestions() {
+            const suggestionsContainer = document.getElementById('aiSuggestions');
+            if (!suggestionsContainer) return;
+            
+            const suggestions = generatePersonalizedSuggestions();
+            suggestionsContainer.innerHTML = suggestions;
+        }
+
+        function generatePersonalizedSuggestions() {
+            if (!userData.testHistory || Object.keys(userData.testHistory).length === 0) {
+                return `
+                    <div class="flex items-center mb-3">
+                        <span class="text-2xl mr-3">🎯</span>
+                        <div>
+                            <h4 class="font-semibold text-purple-800">Welcome to AI Tutoring!</h4>
+                            <p class="text-sm text-purple-600">Take some tests first, and I'll provide personalized recommendations based on your performance.</p>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mt-4">
+                        <button onclick="showSection('mockTests')" class="bg-gradient-to-r from-purple-500 to-blue-500 text-white px-4 py-2 rounded-lg hover:from-purple-600 hover:to-blue-600 transition-all text-sm">
+                            📝 Take Your First Test
+                        </button>
+                        <button onclick="askQuickQuestion('What topics should I focus on for my grade?')" class="bg-gradient-to-r from-green-500 to-teal-500 text-white px-4 py-2 rounded-lg hover:from-green-600 hover:to-teal-600 transition-all text-sm">
+                            💡 Get Study Tips
+                        </button>
+                    </div>
+                `;
+            }
+            
+            // Analyze test history to provide suggestions
+            const topicPerformance = {};
+            let totalTests = 0;
+            
+            Object.keys(userData.testHistory).forEach(topic => {
+                const tests = userData.testHistory[topic];
+                if (tests.length > 0) {
+                    const avgScore = tests.reduce((sum, test) => sum + test.score, 0) / tests.length;
+                    const recentScore = tests[tests.length - 1].score;
+                    topicPerformance[topic] = {
+                        avgScore: avgScore,
+                        recentScore: recentScore,
+                        testCount: tests.length
+                    };
+                    totalTests += tests.length;
+                }
+            });
+            
+            // Find strengths and weaknesses
+            const strengths = [];
+            const weaknesses = [];
+            
+            Object.keys(topicPerformance).forEach(topic => {
+                const perf = topicPerformance[topic];
+                if (perf.avgScore >= 80) {
+                    strengths.push({ topic, score: perf.avgScore });
+                } else if (perf.avgScore < 60) {
+                    weaknesses.push({ topic, score: perf.avgScore });
+                }
+            });
+            
+            // Sort by performance
+            strengths.sort((a, b) => b.score - a.score);
+            weaknesses.sort((a, b) => a.score - b.score);
+            
+            let suggestions = `
+                <div class="flex items-center mb-3">
+                    <span class="text-2xl mr-3">🤖</span>
+                    <div>
+                        <h4 class="font-semibold text-purple-800">AI Analysis Complete!</h4>
+                        <p class="text-sm text-purple-600">Based on your ${totalTests} test attempts, here are my recommendations:</p>
+                    </div>
+                </div>
+            `;
+            
+            if (strengths.length > 0) {
+                suggestions += `
+                    <div class="bg-green-50 p-3 rounded-lg mb-3 border border-green-200">
+                        <h5 class="font-semibold text-green-800 mb-2">💪 Your Strengths:</h5>
+                        <div class="flex flex-wrap gap-2">
+                            ${strengths.slice(0, 3).map(s => `
+                                <span class="bg-green-100 text-green-800 px-3 py-1 rounded-full text-xs font-medium">
+                                    ${s.topic} (${Math.round(s.score)}%)
+                                </span>
+                            `).join('')}
+                        </div>
+                    </div>
+                `;
+            }
+            
+            if (weaknesses.length > 0) {
+                suggestions += `
+                    <div class="bg-orange-50 p-3 rounded-lg mb-3 border border-orange-200">
+                        <h5 class="font-semibold text-orange-800 mb-2">🎯 Focus Areas:</h5>
+                        <div class="flex flex-wrap gap-2">
+                            ${weaknesses.slice(0, 3).map(w => `
+                                <span class="bg-orange-100 text-orange-800 px-3 py-1 rounded-full text-xs font-medium">
+                                    ${w.topic} (${Math.round(w.score)}%)
+                                </span>
+                            `).join('')}
+                        </div>
+                    </div>
+                `;
+            }
+            
+            // Action buttons
+            suggestions += `
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-2 mt-4">
+                    <button onclick="askQuickQuestion('Help me improve in ${weaknesses[0]?.topic || 'algebra'}')" class="bg-gradient-to-r from-orange-500 to-red-500 text-white px-3 py-2 rounded-lg hover:from-orange-600 hover:to-red-600 transition-all text-xs">
+                        🎯 Improve Weak Areas
+                    </button>
+                    <button onclick="askQuickQuestion('Give me advanced ${strengths[0]?.topic || 'algebra'} problems')" class="bg-gradient-to-r from-green-500 to-teal-500 text-white px-3 py-2 rounded-lg hover:from-green-600 hover:to-teal-600 transition-all text-xs">
+                        💪 Challenge Strengths
+                    </button>
+                    <button onclick="showSection('mockTests')" class="bg-gradient-to-r from-purple-500 to-blue-500 text-white px-3 py-2 rounded-lg hover:from-purple-600 hover:to-blue-600 transition-all text-xs">
+                        📝 Take More Tests
+                    </button>
+                </div>
+            `;
+            
+            return suggestions;
+        }
+
+        // Important Topics Popup
+        function showImportantTopicsPopup() {
+            const topics = getImportantTopicsForGrade(parseInt(userData.grade), userData.syllabus);
+            const popup = document.createElement('div');
+            popup.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
+            popup.innerHTML = `
+                <div class="bg-white rounded-2xl shadow-2xl p-6 w-full max-w-md mx-4 notification-popup">
+                    <div class="text-center mb-4">
+                        <div class="text-4xl mb-2">🎯</div>
+                        <h3 class="text-xl font-bold text-gray-800">Important Topics to Focus On</h3>
+                        <p class="text-sm text-gray-600">Based on your grade and syllabus</p>
+                    </div>
+                    <div class="space-y-2 mb-6">
+                        ${topics.map(topic => `
+                            <div class="bg-gradient-to-r from-purple-50 to-blue-50 p-3 rounded-xl border border-purple-200">
+                                <span class="text-sm font-medium text-purple-800">⭐ ${topic}</span>
+                            </div>
+                        `).join('')}
+                    </div>
+                    <button onclick="closePopup(this)" class="w-full bg-gradient-to-r from-purple-600 to-blue-600 text-white py-3 rounded-xl hover:from-purple-700 hover:to-blue-700 font-medium transition-all">
+                        ✨ Got it! Let's Learn
+                    </button>
+                </div>
+            `;
+            document.body.appendChild(popup);
+            
+            // Show motivational notification after popup
+            setTimeout(() => {
+                showNotification('🌟 You can do this! Start with any topic that interests you!', 'success');
+            }, 500);
+        }
+
+        function getImportantTopicsForGrade(grade, syllabus) {
+            if (grade <= 5) {
+                return ['Basic Addition & Subtraction', 'Multiplication Tables', 'Simple Fractions', 'Shapes & Patterns'];
+            } else if (grade <= 8) {
+                return ['Linear Equations', 'Basic Geometry', 'Fractions & Decimals', 'Percentages', 'Simple Interest'];
+            } else if (syllabus.toLowerCase() === 'cbse') {
+                return ['Quadratic Equations', 'Coordinate Geometry', 'Trigonometry', 'Statistics & Probability', 'Surface Areas & Volumes'];
+            } else {
+                return ['Algebra Fundamentals', 'Geometry Basics', 'Trigonometry', 'Statistics', 'Mensuration'];
+            }
+        }
+
+        function closePopup(button) {
+            const popup = button.closest('.fixed');
+            popup.remove();
+        }
+
+        // Initialize the app
+        showSection('dashboard');
+    
+// Enable global file content access
+window.uploadedFileContent = null;
+
+document.getElementById("aiFileUpload").addEventListener("change", function (e) {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+
+    reader.onload = function (event) {
+        const content = event.target.result;
+        window.uploadedFileContent = content;
+
+        if (file.type.startsWith("image/")) {
+            addChatMessage(`🖼️ Image "${file.name}" uploaded. I will use OCR to answer related questions.`, 'ai');
+            // Optional: Here you would normally invoke OCR (e.g., Tesseract.js)
+        } else {
+            addChatMessage(`📄 File "${file.name}" uploaded. You can now ask questions based on this file.`, 'ai');
+        }
+    };
+
+    if (file.type.startsWith("text") || file.name.endsWith(".txt")) {
+        reader.readAsText(file);
+    } else if (file.type.startsWith("image/")) {
+        reader.readAsDataURL(file); // for OCR base64
+    } else {
+        alert("Unsupported file type. Please upload a text or image file.");
+    }
+});
+
+// Inject uploaded file content into AI's context
+function generateAIResponse(question) {
+    const context = window.uploadedFileContent ? `\n\nContext from uploaded file:\n${window.uploadedFileContent.substring(0, 1000)}\n\n` : '';
+    const lowerQuestion = question.toLowerCase();
+
+    if (context && lowerQuestion.includes("explain") || lowerQuestion.includes("what is in the image")) {
+        return "📘 Based on your uploaded file or image, here's what I found: " + context.slice(0, 300) + "...";
+    }
+
+    return "✨ I’ve received your question" + (context ? " based on your uploaded file/image." : "") + " Let me help!";
+}
+
+</script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'967b7472b7ae613f',t:'MTc1Mzk0NzcwMi4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();
+// Enable global file content access
+window.uploadedFileContent = null;
+
+document.getElementById("aiFileUpload").addEventListener("change", function (e) {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+
+    reader.onload = function (event) {
+        const content = event.target.result;
+        window.uploadedFileContent = content;
+
+        if (file.type.startsWith("image/")) {
+            addChatMessage(`🖼️ Image "${file.name}" uploaded. I will use OCR to answer related questions.`, 'ai');
+            // Optional: Here you would normally invoke OCR (e.g., Tesseract.js)
+        } else {
+            addChatMessage(`📄 File "${file.name}" uploaded. You can now ask questions based on this file.`, 'ai');
+        }
+    };
+
+    if (file.type.startsWith("text") || file.name.endsWith(".txt")) {
+        reader.readAsText(file);
+    } else if (file.type.startsWith("image/")) {
+        reader.readAsDataURL(file); // for OCR base64
+    } else {
+        alert("Unsupported file type. Please upload a text or image file.");
+    }
+});
+
+// Inject uploaded file content into AI's context
+function generateAIResponse(question) {
+    const context = window.uploadedFileContent ? `\n\nContext from uploaded file:\n${window.uploadedFileContent.substring(0, 1000)}\n\n` : '';
+    const lowerQuestion = question.toLowerCase();
+
+    if (context && lowerQuestion.includes("explain") || lowerQuestion.includes("what is in the image")) {
+        return "📘 Based on your uploaded file or image, here's what I found: " + context.slice(0, 300) + "...";
+    }
+
+    return "✨ I’ve received your question" + (context ? " based on your uploaded file/image." : "") + " Let me help!";
+}
+
+</script></body>
+</html>
